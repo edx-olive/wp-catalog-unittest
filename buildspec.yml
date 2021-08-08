@@ -1,7 +1,5 @@
 version: 0.2
-
-
-env:
+# env:
   # variables:
   #parameter-store:
      # key: "value"
