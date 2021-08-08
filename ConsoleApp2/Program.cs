@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Environment;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
@@ -13,11 +14,20 @@ namespace Campus
     class Program
     {
         //public static String URL = "https://campus.gov.il/";
-        public static String URL = "https://stage.campus.gov.il/";
+        // public static String URL = "https://stage.campus.gov.il/";
+        public static String URL = System.Environment.GetEnvironmentVariable("CAMPUS_URL");
         static void Main(string[] args)
         {
-            //IWebDriver driver = new ChromeDriver();
-            IWebDriver driver = new FirefoxDriver();
+            int failed = 0;
+            int success = 0;
+            ChromeOptions options = new ChromeOptions();
+            options.AddArgument("--headless");
+            options.AddArgument("--whitelisted-ips");
+            options.AddArgument("--no-sandbox");
+            options.AddArgument("--disable-extensions");
+            options.AddArgument("--disable-dev-shm-usage");        
+            IWebDriver driver = new ChromeDriver(options);
+            // IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
             /**/
@@ -56,12 +66,13 @@ namespace Campus
             try
             {
                 driver.FindElements(By.CssSelector("[class='close-popup-course-button last-popup-element first-popup-element close-popup-button']"))[1].Click();
+                return true;
             }
             catch (Exception)
             {
                 Console.WriteLine("fail or impossible! doesn't have popup event in front");
+                return false;
             }
-
         }
 
         private static void Pagehome(IWebDriver driver)
