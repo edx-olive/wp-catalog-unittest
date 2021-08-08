@@ -3,12 +3,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <PublishChromeDriver>true</PublishChromeDriver>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="chromedriver" Version="19.0.1068.5" />
     <PackageReference Include="NUnit" Version="3.13.1" />
-    <PackageReference Include="Selenium.Chrome.WebDriver" Version="85.0.0" />
-    <PackageReference Include="Selenium.Firefox.WebDriver" Version="0.27.0" />
+    <PackageReference Include="Selenium.chrome.webdriver" Version="2.40.0" />
+    <!-- <PackageReference Include="Selenium.Firefox.WebDriver" Version="0.27.0" /> -->
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
   </ItemGroup>
 
