@@ -4,10 +4,10 @@ using System.Diagnostics;
 using System.Threading;
 using System.Environment;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Firefox;
+// using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
-//using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Chrome;
 
 namespace Campus
 {
