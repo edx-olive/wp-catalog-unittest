@@ -1,0 +1,44 @@
+version: 0.2
+
+
+env:
+  # variables:
+  #parameter-store:
+     # key: "value"
+     # key: "value"
+ 
+  #exported-variables:
+     # - variable
+     # - variable
+  #git-credential-helper: yes
+#batch:
+  #fast-fail: true
+  #build-list:
+  #build-matrix:
+  #build-graph:
+phases:
+
+  #install:
+    #If you use the Ubuntu standard image 2.0 or later, you must specify runtime-versions.
+    #If you specify runtime-versions and use an image other than Ubuntu standard image 2.0, the build fails.
+    #runtime-versions:
+      # name: version
+      # name: version
+    #commands:
+      # - command
+      # - command
+  pre_build:
+    commands:
+      - yum update -y
+      - echo Entered the pre_build phase...
+  build:
+    commands:
+    # building image
+      - echo "Start unitest build"    
+      - cd ConsoleApp2
+      - docker build -t campus-unitest .
+    # pushing to repo  
+      - docker login -u AWS -p $(aws ecr get-login-password --region eu-west-1) 749395632050.dkr.ecr.eu-west-1.amazonaws.com
+      - docker tag campus-unitest:latest 749395632050.dkr.ecr.eu-west-1.amazonaws.com/campus-unitest:latest
+      - docker push 749395632050.dkr.ecr.eu-west-1.amazonaws.com/campus-unitest:latest
+   
