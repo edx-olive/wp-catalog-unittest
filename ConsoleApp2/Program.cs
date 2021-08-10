@@ -32,16 +32,15 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            /**/
+            /*
             if (CloseFirstPopup(driver)) success++; else failed++;
             if (Pagehome(driver)) success++; else failed++;
             if (PagesAcademicInstitution(driver)) success++; else failed++;
             if (FloorLearningObjectives(driver)) success++; else failed++;
             if (CoursesSection(driver)) success++; else failed++;
-            if (PagesCampusSchool(driver)) success++; else failed++;
-            /**/
-            BlenPageTests(driver);
-            if (driver.Url.Contains("https://stage.campus.gov.il/"))
+            if (PagesCampusSchool(driver)) success++; else failed++;*/
+            if (BlenPageTests(driver)) success++; else failed++;
+            /*if (driver.Url.Contains("https://stage.campus.gov.il/"))
             {
                 associationPageTests(driver);
             }
@@ -62,7 +61,7 @@ namespace Campus
             else
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
-            }
+            }*/
 
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
@@ -283,26 +282,34 @@ namespace Campus
             }
         }
 
-        private static void BlenPageTests(IWebDriver driver)
+        private static bool BlenPageTests(IWebDriver driver)
         {
-            string url = URL + "h_course/tester/";
-            driver.Navigate().GoToUrl(url);
-            Console.WriteLine("go to Blen Course Page");
-            ChangeLanguageEn(driver, "Blen Page");
-            ChangeLanguageAr(driver, "Blen Page");
-            ChangeLanguageHe(driver, "Blen Page");
-            TitleInBannerById(driver, "hybrid_banner_h1");
-            MoreInfo(driver);
-            BlendPageRegistrationButton(driver);
-            associationButton(driver);
-            institutionButton(driver);
-            AboutLecturer(driver);
-            MoreCourses(driver);
-            ButtonForCourse(driver, url);
-            BlenMoreInfo(driver, url);
-            Navigates(driver, url);
-            //זה בהערה כי נופל בגלל שלא הזינו צאט
-            ChatBotAvatar(driver, url);
+            try
+            {
+                string url = URL + "h_course/tester/";
+                driver.Navigate().GoToUrl(url);
+                Console.WriteLine("go to Blen Course Page");
+                ChangeLanguageEn(driver, "Blen Page");
+                ChangeLanguageAr(driver, "Blen Page");
+                ChangeLanguageHe(driver, "Blen Page");
+                TitleInBannerById(driver, "hybrid_banner_h1");
+                MoreInfo(driver);
+                BlendPageRegistrationButton(driver);
+                associationButton(driver);
+                institutionButton(driver);
+                AboutLecturer(driver);
+                MoreCourses(driver);
+                ButtonForCourse(driver, url);
+                BlenMoreInfo(driver, url);
+                Navigates(driver, url);
+                ChatBotAvatar(driver, url);
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Blen Page Tests " + e.Message);
+                return false;
+            }
         }
 
         private static void associationPageTests(IWebDriver driver)
@@ -692,114 +699,177 @@ namespace Campus
 
         private static void TitleInBannerById(IWebDriver driver, string id_title)
         {
-            string title = driver.FindElement(By.Id(id_title)).Text;
-            if (title != "")
-                Console.WriteLine("success! have title in banner");
-            else
-                Console.WriteLine("fail! don't have title in banner");
+            try
+            {
+                string title = driver.FindElement(By.Id(id_title)).Text;
+                if (title != "")
+                    Console.WriteLine("success! have title in banner");
+                else
+                    Console.WriteLine("fail! don't have title in banner");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Title In Banner By Id " + e.Message);
+            }
+
         }
 
 
         private static void BlendPageRegistrationButton(IWebDriver driver)
         {
             driver.Url = URL + "h_course/tester/";
-            IWebElement a = driver.FindElement(By.Id("hybrid_banner_btn"));
-            if (a.Text == "הרשמה לcampusIL")
-                Console.WriteLine("success! registration button have the correct text");
-            else
-                Console.WriteLine("fail! registration button  doesn't have the correct text");
-
-            a.Click();
-            var browserTabs = driver.WindowHandles;
-            driver.SwitchTo().Window(browserTabs[1]);
-
-            //check is it correct page opened or not 
-            if (driver.Title.Contains("היכנס או צור חשבון"))
+            try
             {
-                Console.WriteLine("success! button registration send user to registration page");
+                IWebElement a = driver.FindElement(By.Id("hybrid_banner_btn"));
+                if (a.Text == "הרשמה לcampusIL")
+                    Console.WriteLine("success! registration button have the correct text");
+                else
+                    Console.WriteLine("fail! registration button  doesn't have the correct text");
+
+                a.Click();
+                var browserTabs = driver.WindowHandles;
+                driver.SwitchTo().Window(browserTabs[1]);
+
+                //check is it correct page opened or not 
+                if (driver.Title.Contains("היכנס או צור חשבון"))
+                {
+                    Console.WriteLine("success! button registration send user to registration page");
+                }
+                else
+                    Console.WriteLine("registration button doesn't send to registration page");
+                //close tab and get back
+                driver.Close();
+                driver.SwitchTo().Window(browserTabs[0]);
             }
-            else
-                Console.WriteLine("registration button doesn't send to registration page");
-            //close tab and get back
-            driver.Close();
-            driver.SwitchTo().Window(browserTabs[0]);
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! BlendPageRegistrationButton" + e.Message);
+            }
+
         }
 
         private static void associationButton(IWebDriver driver)
         {
-            IWebElement a = driver.FindElement(By.XPath("//div[@class='uni-logo2 col-6 col-sm-2']")).FindElement(By.TagName("a"));
-            a.Click();
-
-            if (driver.Title.Contains("משרד החינוך"))
+            try
             {
-                Console.WriteLine("success! association button send to association page");
+                IWebElement a = driver.FindElement(By.XPath("//div[@class='uni-logo2 col-6 col-sm-2']")).FindElement(By.TagName("a"));
+                a.Click();
+
+                if (driver.Title.Contains("משרד החינוך"))
+                {
+                    Console.WriteLine("success! association button send to association page");
+                }
+                //close tab and get back
+                else
+                    Console.WriteLine("association button doesn't send to association page");
             }
-            //close tab and get back
-            else
-                Console.WriteLine("association button doesn't send to association page");
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! association Button" + e.Message);
+            }
+
         }
 
         private static void institutionButton(IWebDriver driver)
         {
             driver.Url = URL + "h_course/tester/";
-            IWebElement a = driver.FindElement(By.XPath("//div[@class='uni-logo1 col-6 col-sm-2 align-self-center']"));
-            a.Click();
-
-            if (driver.Title.Contains("אוניברסיטת חיפה"))
+            try
             {
-                Console.WriteLine("success! Institution button send to institution page");
+                IWebElement a = driver.FindElement(By.XPath("//div[@class='uni-logo1 col-6 col-sm-2 align-self-center']"));
+                a.Click();
+
+                if (driver.Title.Contains("אוניברסיטת חיפה"))
+                    Console.WriteLine("success! Institution button send to institution page");
+
+                else
+                    Console.WriteLine("fail! Institution button doesn't send to institution page");
             }
-            //close tab and get back
-            else
-                Console.WriteLine("fail! Institution button doesn't send to institution page");
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! institutionButton " + e.Message);
+            }
+
         }
 
         private static void AboutLecturer(IWebDriver driver)
         {
             driver.Url = URL + "h_course/tester/";
-            driver.FindElement(By.ClassName("lecturer-little-about")).Click();
-            Thread.Sleep(100);
-            IWebElement a = driver.FindElement(By.XPath("//div[@class='single-lecturer-popup dialog active']"));
-            driver.FindElement(By.XPath("//div[@class='single-lecturer-popup dialog active']"));
-            Console.WriteLine("success! Popup about lecturer apear");
+            try
+            {
+                driver.FindElement(By.ClassName("lecturer-little-about")).Click();
+                Thread.Sleep(100);
+                IWebElement a = driver.FindElement(By.XPath("//div[@class='single-lecturer-popup dialog active']"));
+                driver.FindElement(By.XPath("//div[@class='single-lecturer-popup dialog active']"));
+                Console.WriteLine("success! Popup about lecturer apear");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! AboutLecturer" + e.Message);
+
+            }
+
         }
 
         private static void MoreCourses(IWebDriver driver)
         {
-            driver.Url = URL + "h_course/tester/";
-            driver.FindElement(By.ClassName("for-all-courses-link")).Click();
-            if (driver.Title.Contains("משרד החינוך"))
+            try
             {
-                Console.WriteLine("success! The More Courses button takes to the Assimilation Body page");
+                driver.Url = URL + "h_course/tester/";
+                driver.FindElement(By.ClassName("for-all-courses-link")).Click();
+                if (driver.Title.Contains("משרד החינוך"))
+                {
+                    Console.WriteLine("success! The More Courses button takes to the Assimilation Body page");
+                }
+                else
+                {
+                    Console.WriteLine("fail! The More Courses button doesn't take to the Assimilation Body page");
+                }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("fail! The More Courses button doesn't take to the Assimilation Body page");
+                Console.WriteLine("fail! MoreCourses" + e.Message);
             }
+
         }
 
         //בדיקת הגעה לקורס מכפתור "לעמוד הקורס" בדף ארגון מטמיע
         private static void ButtonForCourse(IWebDriver driver, string url)
         {
-            driver.Url = url;
-            driver.FindElement(By.ClassName("course-item-link")).Click();
-            Console.WriteLine("success! the button navigate user to course page");
+            try
+            {
+                driver.Url = url;
+                driver.FindElement(By.ClassName("course-item-link")).Click();
+                Console.WriteLine("success! the button navigate user to course page");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! ButtonForCourse " + e.Message);
+            }
+
         }
 
         private static void BlenMoreInfo(IWebDriver driver, string url)
         {
-            driver.Url = url;
-            IWebElement wrap_info = driver.FindElement(By.ClassName("content-info-wrap"));
-            Console.WriteLine("success! get organisation " + wrap_info.FindElement(By.XPath("//span[@class='org info-course-list-bold']/./following-sibling::span")).Text);
-            Console.WriteLine("success! get institution " + wrap_info.FindElement(By.ClassName("item_corporation_institution")).Text);
-            Console.WriteLine("success! get duration " + wrap_info.FindElement(By.XPath("//span[@class='duration info-course-list-bold']/./following-sibling::span")).Text);
-            Console.WriteLine("success! get start date " + wrap_info.FindElement(By.XPath("//span[@class='start info-course-list-bold']/./following-sibling::span")).Text);
-            Console.WriteLine("success! get end date " + wrap_info.FindElement(By.XPath("//span[@class='end info-course-list-bold']/./following-sibling::span")).Text);
-            Console.WriteLine("success! get price " + wrap_info.FindElement(By.XPath("//span[@class='price info-course-list-bold']/./following-sibling::span")).Text);
-            Console.WriteLine("success! get language " + wrap_info.FindElement(By.XPath("//span[@class='language info-course-list-bold']/./following-sibling::span")).Text);
-            var info_langs_spans = wrap_info.FindElements(By.ClassName("info_lang_span"));
-            foreach (var item in info_langs_spans)
-                Console.WriteLine("success! get subtitle_lang " + item.Text);
+            try
+            {
+                driver.Url = url;
+                IWebElement wrap_info = driver.FindElement(By.ClassName("content-info-wrap"));
+                Console.WriteLine("success! get organisation " + wrap_info.FindElement(By.XPath("//span[@class='org info-course-list-bold']/./following-sibling::span")).Text);
+                Console.WriteLine("success! get institution " + wrap_info.FindElement(By.ClassName("item_corporation_institution")).Text);
+                Console.WriteLine("success! get duration " + wrap_info.FindElement(By.XPath("//span[@class='duration info-course-list-bold']/./following-sibling::span")).Text);
+                Console.WriteLine("success! get start date " + wrap_info.FindElement(By.XPath("//span[@class='start info-course-list-bold']/./following-sibling::span")).Text);
+                Console.WriteLine("success! get end date " + wrap_info.FindElement(By.XPath("//span[@class='end info-course-list-bold']/./following-sibling::span")).Text);
+                Console.WriteLine("success! get price " + wrap_info.FindElement(By.XPath("//span[@class='price info-course-list-bold']/./following-sibling::span")).Text);
+                Console.WriteLine("success! get language " + wrap_info.FindElement(By.XPath("//span[@class='language info-course-list-bold']/./following-sibling::span")).Text);
+                var info_langs_spans = wrap_info.FindElements(By.ClassName("info_lang_span"));
+                foreach (var item in info_langs_spans)
+                    Console.WriteLine("success! get subtitle_lang " + item.Text);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! BlenMoreInfo " + e.Message);
+            }
+
 
 
         }
@@ -814,46 +884,75 @@ namespace Campus
 
         private static void NavigateCoursesPage(IWebDriver driver, string url)
         {
-            driver.Url = url;
-            driver.FindElement(By.Id("menu-item-6449")).Click();
-            Thread.Sleep(400);
-            if (driver.Title.Contains("קורסים"))
-                Console.WriteLine("success! the button navigate to courses page");
+            try
+            {
+                driver.Url = url;
+                driver.FindElement(By.Id("menu-item-6449")).Click();
+                Thread.Sleep(400);
+                if (driver.Title.Contains("קורסים"))
+                    Console.WriteLine("success! the button navigate to courses page");
 
-            else
-                Console.WriteLine("fail! can't navigate to courses page");
+                else
+                    Console.WriteLine("fail! can't navigate to courses page");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! NavigateCoursesPage " + e.Message);
+            }
+
 
 
         }
 
         private static void NavigatesAboutPage(IWebDriver driver, string url)
         {
-            driver.Url = url;
-            driver.FindElement(By.Id("menu-item-36401")).Click();
-            if (driver.Title.Contains("החזון"))
-                Console.WriteLine("success! the button navigate to about page");
-            else
-                Console.WriteLine("fail! can't navigate to about page");
+            try
+            {
+                driver.Url = url;
+                driver.FindElement(By.Id("~menu-item-36401")).Click();
+                if (driver.Title.Contains("החזון"))
+                    Console.WriteLine("success! the button navigate to about page");
+                else
+                    Console.WriteLine("fail! can't navigate to about page");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! NavigatesAboutPage " + e.Message);
+            }
         }
 
         private static void NavigatesEventsPage(IWebDriver driver, string url)
         {
-            driver.Url = url;
-            driver.FindElement(By.Id("menu-item-36418")).Click();
-            if (driver.Title.Contains("אירועים - קמפוס IL"))
-                Console.WriteLine("success! the button navigate to events page");
-            else
-                Console.WriteLine("fail! can't navigate to events page");
+            try
+            {
+                driver.Url = url;
+                driver.FindElement(By.Id("menu-item-36418")).Click();
+                if (driver.Title.Contains("אירועים - קמפוס IL"))
+                    Console.WriteLine("success! the button navigate to events page");
+                else
+                    Console.WriteLine("fail! can't navigate to events page");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! NavigatesEventsPage " + e.Message);
+            }
         }
 
         private static void NavigatesSupportPage(IWebDriver driver, string url)
         {
-            driver.Url = url;
-            driver.FindElement(By.Id("menu-item-21855")).Click();
-            if (driver.Title != "צור קשר - קמפוס IL")
-                Console.WriteLine("fail! can't navigate to support page");
-            else
-                Console.WriteLine("success! the button navigate to support page");
+            try
+            {
+                driver.Url = url;
+                driver.FindElement(By.Id("menu-item-21855")).Click();
+                if (driver.Title != "צור קשר - קמפוס IL")
+                    Console.WriteLine("fail! can't navigate to support page");
+                else
+                    Console.WriteLine("success! the button navigate to support page");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! NavigatesSupportPage " + e.Message);
+            }
         }
 
         private static void ChatBotAvatar(IWebDriver driver, string url)
@@ -925,26 +1024,48 @@ namespace Campus
 
         private static void MoreInfo(IWebDriver driver)
         {
-            string start_date = driver.FindElement(By.ClassName("start-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
-            Console.WriteLine("start date: " + start_date);
-            if (start_date != "")
-                Console.WriteLine("success! get start date");
-            else
-                Console.WriteLine("fail! can not get start date");
+            try
+            {
+                string start_date = driver.FindElement(By.ClassName("start-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
+                Console.WriteLine("start date: " + start_date);
+                if (start_date != "")
+                    Console.WriteLine("success! get start date");
+                else
+                    Console.WriteLine("fail! can not get start date");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! MoreInfo start_date " + e.Message);
+            }
 
-            string price = driver.FindElement(By.ClassName("price-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
-            Console.WriteLine("price: " + price);
-            if (price != "")
-                Console.WriteLine("success! get price");
-            else
-                Console.WriteLine("fail! can not get price");
+            try
+            {
+                string price = driver.FindElement(By.ClassName("price-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
+                Console.WriteLine("price: " + price);
+                if (price != "")
+                    Console.WriteLine("success! get price");
+                else
+                    Console.WriteLine("fail! can not get price");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! MoreInfo price " + e.Message);
+            }
 
-            string duration_of_course = driver.FindElement(By.ClassName("duration-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
-            Console.WriteLine("duration of course: " + duration_of_course);
-            if (duration_of_course != "")
-                Console.WriteLine("success! get duration of the course");
-            else
-                Console.WriteLine("fail! can not get duration of the course");
+            try
+            {
+                string duration_of_course = driver.FindElement(By.ClassName("duration-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
+                Console.WriteLine("duration of course: " + duration_of_course);
+                if (duration_of_course != "")
+                    Console.WriteLine("success! get duration of the course");
+                else
+                    Console.WriteLine("fail! can not get duration of the course");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! MoreInfo duration_of_course " + e.Message);
+            }
+
         }
 
         private static void FloodedPosters(IWebDriver driver)
