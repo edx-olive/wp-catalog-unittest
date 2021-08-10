@@ -20,8 +20,7 @@ namespace Campus
         //public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
         static void Main(string[] args)
         {
-            int failed = 0;
-            int success = 0;
+            int failed = 0, success = 0, sum_funcs = 0;
             //RETURN
             //ChromeOptions options = new ChromeOptions();
             //options.AddArgument("--headless");
@@ -33,12 +32,13 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            /*
+            /**/
             CloseFirstPopup(driver);
-            Pagehome(driver);     */
+            Pagehome(driver);     
             PagesAcademicInstitution(driver);
-            /*FloorLearningObjectives(driver);
-            CoursesSection(driver);
+            FloorLearningObjectives(driver);
+            if (CoursesSection(driver)) success++; else failed++;
+            /**/
             PagesCampusSchool(driver);
             BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
@@ -63,8 +63,8 @@ namespace Campus
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
             }
-            */
-
+            
+            Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
         }
 
@@ -227,21 +227,31 @@ namespace Campus
             }
         }
 
-        private static void CoursesSection(IWebDriver driver)
+        private static bool CoursesSection(IWebDriver driver)
         {
             Thread.Sleep(20);
-            for (int i = 0; i < 2; i++)
+            try
             {
-                IWebElement course_link = driver.FindElements(By.ClassName("course-item-details"))[i];
-                string course_title = course_link.FindElement(By.ClassName("course-item-title")).Text;
-                course_link.Click();
-                Thread.Sleep(100);
-                if (driver.Title.Contains(course_title))
+                for (int i = 0; i < 2; i++)
                 {
-                    Console.WriteLine("success! go to course");
-                    driver.Navigate().Back();
+                    IWebElement course_link = driver.FindElements(By.ClassName("course-item-details"))[i];
+                    string course_title = course_link.FindElement(By.ClassName("course-item-title")).Text;
+                    course_link.Click();
+                    Thread.Sleep(100);
+                    if (driver.Title.Contains(course_title))
+                    {
+                        Console.WriteLine("success! go to course");
+                        driver.Navigate().Back();
+                    }
+                    else Console.WriteLine("fail! go to course");
                 }
-                else Console.WriteLine("fail! go to course");
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Courses Section " + e.Message);
+                return false;
             }
         }
 
@@ -601,7 +611,7 @@ namespace Campus
                 course_link?.Click();
 
                 string current_language = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
-                if (current_language == lang_language &&  driver.Title.Contains(course_title))
+                if (current_language == lang_language && driver.Title.Contains(course_title))
                 {
                     Console.WriteLine("success! go to course");
                     driver.Navigate().Back();
