@@ -32,23 +32,24 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            /*
+            /**/
             if (CloseFirstPopup(driver)) success++; else failed++;
             if (Pagehome(driver)) success++; else failed++;
             if (PagesAcademicInstitution(driver)) success++; else failed++;
             if (FloorLearningObjectives(driver)) success++; else failed++;
             if (CoursesSection(driver)) success++; else failed++;
-            if (PagesCampusSchool(driver)) success++; else failed++;*/
+            if (PagesCampusSchool(driver)) success++; else failed++;
             if (BlenPageTests(driver)) success++; else failed++;
-            /*if (driver.Url.Contains("https://stage.campus.gov.il/"))
+            if (driver.Url.Contains("https://stage.campus.gov.il/") && associationPageTests(driver))
             {
-                associationPageTests(driver);
+                success++;
             }
             else
             {
+                failed++;
                 Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
             }
-            CoursePage(driver);
+            /**/CoursePage(driver);
             RegistrationAndeEnrollment(driver);
             CoursesPage(driver);
             CoursesPageEnAr(driver);
@@ -61,7 +62,7 @@ namespace Campus
             else
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
-            }*/
+            }
 
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
@@ -284,40 +285,34 @@ namespace Campus
 
         private static bool BlenPageTests(IWebDriver driver)
         {
-            try
-            {
-                string url = URL + "h_course/tester/";
-                driver.Navigate().GoToUrl(url);
-                Console.WriteLine("go to Blen Course Page");
-                ChangeLanguageEn(driver, "Blen Page");
-                ChangeLanguageAr(driver, "Blen Page");
-                ChangeLanguageHe(driver, "Blen Page");
-                TitleInBannerById(driver, "hybrid_banner_h1");
-                MoreInfo(driver);
-                BlendPageRegistrationButton(driver);
-                associationButton(driver);
-                institutionButton(driver);
-                AboutLecturer(driver);
-                MoreCourses(driver);
-                ButtonForCourse(driver, url);
-                BlenMoreInfo(driver, url);
-                Navigates(driver, url);
-                ChatBotAvatar(driver, url);
-                return true;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("fail! Blen Page Tests " + e.Message);
-                return false;
-            }
+            string url = URL + "h_course/tester/";
+            driver.Navigate().GoToUrl(url);
+            Console.WriteLine("go to Blen Course Page");
+            ChangeLanguageEn(driver, "Blen Page");
+            ChangeLanguageAr(driver, "Blen Page");
+            ChangeLanguageHe(driver, "Blen Page");
+            TitleInBannerById(driver, "hybrid_banner_h1");
+            MoreInfo(driver);
+            BlendPageRegistrationButton(driver);
+            associationButton(driver);
+            institutionButton(driver);
+            AboutLecturer(driver);
+            MoreCourses(driver);
+            ButtonForCourse(driver, url);
+            BlenMoreInfo(driver, url);
+            Navigates(driver, url);
+            ChatBotAvatar(driver, url);
+            return true;
+
         }
 
-        private static void associationPageTests(IWebDriver driver)
+        private static bool associationPageTests(IWebDriver driver)
         {
             string url = URL + "hybrid_institution/tester/";
             Console.WriteLine("go to Association Page");
             ButtonForCourse(driver, url);
             Navigates(driver, url);
+            return true;
         }
 
         private static void CoursePage(IWebDriver driver)
@@ -909,7 +904,7 @@ namespace Campus
             try
             {
                 driver.Url = url;
-                driver.FindElement(By.Id("~menu-item-36401")).Click();
+                driver.FindElement(By.Id("menu-item-36401")).Click();
                 if (driver.Title.Contains("החזון"))
                     Console.WriteLine("success! the button navigate to about page");
                 else
