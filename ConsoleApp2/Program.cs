@@ -35,10 +35,10 @@ namespace Campus
             driver.Navigate().GoToUrl(URL);
             /*
             CloseFirstPopup(driver);
-            Pagehome(driver);     
-            PagesAcademicInstitution(driver);*/
-            FloorLearningObjectives(driver);
-            /*CoursesSection(driver);
+            Pagehome(driver);     */
+            PagesAcademicInstitution(driver);
+            /*FloorLearningObjectives(driver);
+            CoursesSection(driver);
             PagesCampusSchool(driver);
             BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
@@ -112,54 +112,69 @@ namespace Campus
             for (int i = 0; i < 2; i++)
             {
                 Thread.Sleep(1000);
-                IWebElement page = driver.FindElement(By.Id("academic-institution-slider")).FindElements(By.CssSelector("div[aria-hidden='false']"))[i].FindElement(By.TagName("a"));
-                string title_page = page.FindElement(By.TagName("img")).GetAttribute("alt");
-                page?.Click();
-                Thread.Sleep(6000);
-
-                if (driver.Title.Contains(title_page))
+                try
                 {
-                    Console.WriteLine("success! in Academic Institutions page");
-                    var languages = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElements(By.TagName("a"));
-                    List<string> links = new List<string>(); List<string> titles = new List<string>();
-                    foreach (var item in languages)
-                    {
-                        links.Add(item.GetAttribute("href"));
-                        titles.Add(item.GetAttribute("title"));
-                    }
+                    IWebElement page = driver.FindElement(By.Id("academic-institution-slider")).FindElements(By.CssSelector("div[aria-hidden='false']"))[i].FindElement(By.TagName("a"));
+                    string title_page = page.FindElement(By.TagName("img")).GetAttribute("alt");
+                    page?.Click();
+                    Thread.Sleep(6000);
 
-                    for (int j = links.Count - 1; j >= 0; j--)
+                    if (driver.Title.Contains(title_page))
                     {
-                        driver.Url = links[j].ToString();
-                        Thread.Sleep(100);
-                        string lang = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
-                        if (titles[j].ToString() == "עב" && lang == "he-IL")
-                            PageInstitution(driver, lang, "Hebrew");
+                        Console.WriteLine("success! in Academic Institutions: " + title_page + " page");
 
-                        else
+                        var languages = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElements(By.TagName("a"));
+                        List<string> links = new List<string>(); List<string> titles = new List<string>();
+                        foreach (var item in languages)
                         {
-                            if (titles[j].ToString() == "العر" && lang == "ar")
-                                PageInstitution(driver, lang, "Arabic");
-                            else
+                            links.Add(item.GetAttribute("href"));
+                            titles.Add(item.GetAttribute("title"));
+                        }
+
+                        for (int index_link = links.Count - 1; index_link >= 0; index_link--)
+                        {
+                            driver.Url = links[index_link].ToString();
+                            Thread.Sleep(100);
+                            string lang = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
+
+                            switch (titles[index_link].ToString())
                             {
-                                if (titles[j].ToString() == "En" && lang == "en-US")
-                                    PageInstitution(driver, lang, "English");
-
-                                else
-                                    Console.WriteLine("fail! can not change language");
-
+                                case "עב":
+                                    {
+                                        if (lang == "he-IL")
+                                            PageInstitution(driver, lang, "Hebrew");
+                                    }
+                                    break;
+                                case "العر":
+                                    {
+                                        if (lang == "ar")
+                                            PageInstitution(driver, lang, "Arabic");
+                                    }
+                                    break;
+                                case "En":
+                                    {
+                                        if (lang == "en-US")
+                                            PageInstitution(driver, lang, "English");
+                                    }
+                                    break;
+                                default:
+                                    Console.WriteLine("fail! can not change " + titles[index_link].ToString() + " language");
+                                    break;
                             }
                         }
                     }
 
-                    IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-                    go_back?.Click();
-                    Thread.Sleep(500);
-
+                    else
+                        Console.WriteLine("fail! Institution page: " + title_page + " was not found.");
                 }
-                else
-                    Console.WriteLine("institution was Not found :( ");
+                catch (Exception e)
+                {
+                    Console.WriteLine("fail! " + e.Message);
+                }
 
+                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+                go_back?.Click();
+                Thread.Sleep(500);
             }
 
         }
@@ -568,23 +583,25 @@ namespace Campus
             jse.ExecuteScript("arguments[0].click();", input);
         }
 
-        private static void PageInstitution(IWebDriver driver, string lang, string page)
+        private static void PageInstitution(IWebDriver driver, string lang, string language_page)
         {
-            Console.WriteLine("success! change language to " + page);
+            Console.WriteLine("success! change language to " + language_page);
             IsAmountOfCoursesEqual(driver);
             IsAmountOfLecturersEqual(driver);
             //יבודק אם הקורסים הולכים לאתרים שלהם בשפה הנבחרת
-            GoToCourseInInstatution(driver, lang, page);
+            GoToCourseInInstatution(driver, lang);
         }
 
-        private static void GoToCourseInInstatution(IWebDriver driver, string lang_language, string str_language)
+        private static void GoToCourseInInstatution(IWebDriver driver, string lang_language)
         {
             for (int i = 0; i < 2; i++)
             {
                 IWebElement course_link = driver.FindElements(By.ClassName("course-item-details"))[i];
                 string course_title = course_link.FindElement(By.ClassName("course-item-title")).Text;
                 course_link?.Click();
-                if (IfSiteLanguageHaveChanged(driver, lang_language, str_language) && IsInCorrectPage(driver, course_title))
+
+                string current_language = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
+                if (current_language == lang_language &&  driver.Title.Contains(course_title))
                 {
                     Console.WriteLine("success! go to course");
                     driver.Navigate().Back();
@@ -1556,19 +1573,6 @@ namespace Campus
             Console.WriteLine("finish WaitForLoad");
         }*/
 
-        private static bool IfSiteLanguageHaveChanged(IWebDriver driver, string lang_language, string str_language)
-        {
-            string lang = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
-            if (lang == lang_language)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         private static void IsAmountOfCoursesEqual(IWebDriver driver)
         {
             int sum = Int16.Parse(driver.FindElement(By.ClassName("found-course-number")).Text);
@@ -1595,11 +1599,6 @@ namespace Campus
             {
                 Console.WriteLine("fail! lecturers not equal");
             }
-        }
-
-        private static bool IsInCorrectPage(IWebDriver driver, string title_page)
-        {
-            return (driver.Title.Contains(title_page)) ? true : false;
         }
 
         /*
