@@ -20,7 +20,7 @@ namespace Campus
         //public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
         static void Main(string[] args)
         {
-            int failed = 0, success = 0, sum_funcs = 0;
+            int failed = 0, success = 0;
             //RETURN
             //ChromeOptions options = new ChromeOptions();
             //options.AddArgument("--headless");
@@ -32,15 +32,14 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            /*
+            /**/
             CloseFirstPopup(driver);
             Pagehome(driver);     
             PagesAcademicInstitution(driver);
-            FloorLearningObjectives(driver);*/
+            FloorLearningObjectives(driver);
             if (CoursesSection(driver)) success++; else failed++;
-            /*
-            PagesCampusSchool(driver);
-            BlenPageTests(driver);
+            if (PagesCampusSchool(driver)) success++; else failed++;
+            /**/BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
             {
                 associationPageTests(driver);
@@ -62,7 +61,7 @@ namespace Campus
             else
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
-            }*/
+            }
 
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
@@ -197,40 +196,54 @@ namespace Campus
 
         }
 
-        private static void PagesCampusSchool(IWebDriver driver)
+        private static bool PagesCampusSchool(IWebDriver driver)
         {
             driver.Url = URL;
             Thread.Sleep(1000);
-
-            int count_page = driver.FindElement(By.XPath("//*[@id='hp_school_1st']")).FindElements(By.TagName("a")).Count;
-            for (int i = 0; i < count_page; i++)
+            Console.WriteLine("go to campus schools");
+            try
             {
-                Console.WriteLine("go to campus school number " + (i + 1));
-                //string title_page = driver.FindElement(By.Id("hp_school_1st")).FindElements(By.ClassName("school-item"))[i].FindElement(By.TagName("h4")).Text;  
-                Thread.Sleep(1000);
-                var page = driver.FindElement(By.XPath("//*[@id='hp_school_1st']")).FindElements(By.TagName("a"))[i];
-                page.Click();
-                Thread.Sleep(10000);
-                if (driver.Title.Contains("קורסים"))
+                int count_page = driver.FindElement(By.XPath("//*[@id='hp_school_1st']")).FindElements(By.TagName("a")).Count;
+                for (int i = 0; i < count_page; i++)
                 {
-                    Console.WriteLine("success! course page");
-                    //בודק אם מספר הקורסים המוצג בכותרת שווה לכמות הקורסים המוצגים
-                    CountCourse(driver);
-                    LanguageOptionInPosts(driver);
-                    ChangeLanguageEn(driver, "Courses Page");
-                    ChangeLanguageAr(driver, "Courses Page");
-                    ChangeLanguageHe(driver, "Courses Page");
+                    Console.WriteLine("go to campus school number " + (i + 1));
+                    //string title_page = driver.FindElement(By.Id("hp_school_1st")).FindElements(By.ClassName("school-item"))[i].FindElement(By.TagName("h4")).Text;  
+                    Thread.Sleep(1000);
+                    var page = driver.FindElement(By.XPath("//*[@id='hp_school_1st']")).FindElements(By.TagName("a"))[i];
+                    page.Click();
+                    Thread.Sleep(10000);
+                    if (driver.Title.Contains("קורסים"))
+                    {
+                        Console.WriteLine("success! course page");
+                        //בודק אם מספר הקורסים המוצג בכותרת שווה לכמות הקורסים המוצגים
+                        CountCourse(driver);
+                        LanguageOptionInPosts(driver);
+                        ChangeLanguageEn(driver, "Courses Page");
+                        ChangeLanguageAr(driver, "Courses Page");
+                        ChangeLanguageHe(driver, "Courses Page");
 
+                    }
+                    else
+                    {
+                        Console.WriteLine("fail! title isn't match " + driver.Title);
+                        return false;
+                    }
+
+                    driver.Url = URL;
                 }
-                else
-                    Console.WriteLine("fail! title isn't match " + driver.Title + " :( ");
-                driver.Url = URL;
+                return true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Pages Campus School " + e.Message);
+                return false;
             }
         }
 
         private static bool CoursesSection(IWebDriver driver)
         {
             Thread.Sleep(20);
+            Console.WriteLine("go to Courses Section");
             try
             {
                 for (int i = 0; i < 2; i++)
@@ -243,7 +256,7 @@ namespace Campus
                         Console.WriteLine("success! go to course");
 
                     else
-                    { 
+                    {
                         Console.WriteLine("fail! go to course");
                         return false;
                     }
@@ -521,16 +534,24 @@ namespace Campus
 
         private static void CountCourse(IWebDriver driver)
         {
-            int sum_course_title = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
-            int sum_list_course = driver.FindElement(By.ClassName("output-courses")).FindElements(By.ClassName("item_post_type_course")).Count;
-            if (sum_course_title == sum_list_course)
+            try
             {
-                Console.WriteLine("success! the amount of courses is compatible ");
+                int sum_course_title = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                int sum_list_course = driver.FindElement(By.ClassName("output-courses")).FindElements(By.ClassName("item_post_type_course")).Count;
+                if (sum_course_title == sum_list_course)
+                {
+                    Console.WriteLine("success! the amount of courses is compatible ");
+                }
+                else
+                {
+                    Console.WriteLine(sum_course_title + " != " + sum_list_course + " :( ");
+                }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine(sum_course_title + " != " + sum_list_course + " :( ");
+                Console.WriteLine("fail! Count Course " + e.Message);
             }
+
         }
 
         private static void LanguageOptionInPosts(IWebDriver driver)
@@ -576,25 +597,31 @@ namespace Campus
 
         private static void CheckChoosingLanguageOfPosts(IWebDriver driver, string language, string label_language, string input_language)
         {
-
-            IWebElement element = driver.FindElement(By.ClassName("wrap-all-tags-filter")).FindElement(By.CssSelector("label[for='" + label_language + "']"));
-            IWebElement input = element.FindElement(By.Id(input_language));
-            IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
-            jse.ExecuteScript("arguments[0].click();", input);
-            string str_sum = element.FindElement(By.ClassName("sum")).Text.Replace(")", "").Replace("(", "");
-            int sum = Int16.Parse(str_sum);
-            int sum_course_title = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
-
-            if (sum == sum_course_title)
+            try
             {
-                Console.WriteLine("success! show all " + language + " posts");
+                IWebElement element = driver.FindElement(By.ClassName("wrap-all-tags-filter")).FindElement(By.CssSelector("label[for='" + label_language + "']"));
+                IWebElement input = element.FindElement(By.Id(input_language));
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+                string str_sum = element.FindElement(By.ClassName("sum")).Text.Replace(")", "").Replace("(", "");
+                int sum = Int16.Parse(str_sum);
+                int sum_course_title = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+
+                if (sum == sum_course_title)
+                {
+                    Console.WriteLine("success! show all " + language + " posts");
+                }
+                else
+                {
+                    Console.WriteLine("fail! not show all " + language + " posts :( ");
+                }
+                ////click on checkbox language to unchecked
+                jse.ExecuteScript("arguments[0].click();", input);
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("fail! not show all " + language + " posts :( ");
+                Console.WriteLine("fail! Check Choosing Language Of Posts " + e.Message);
             }
-            ////click on checkbox language to unchecked
-            jse.ExecuteScript("arguments[0].click();", input);
         }
 
         private static void PageInstitution(IWebDriver driver, string lang, string language_page)
@@ -1655,47 +1682,68 @@ namespace Campus
 
         private static void ChangeLanguageAr(IWebDriver driver, string page)
         {
-            var language = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-ar")).FindElement(By.TagName("a"));
+            try
+            {
+                var language = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-ar")).FindElement(By.TagName("a"));
 
-            string links = language.GetAttribute("href");
+                string links = language.GetAttribute("href");
 
-            driver.Url = links.ToString();
-            string lang = driver.FindElement(By.TagName("html")).GetAttribute("lang");
-            if (lang == "ar")
-                Console.WriteLine("success! change language Ar in " + page);
+                driver.Url = links.ToString();
+                string lang = driver.FindElement(By.TagName("html")).GetAttribute("lang");
+                if (lang == "ar")
+                    Console.WriteLine("success! change language Ar in " + page);
 
-            else
-                Console.WriteLine("fail! can not change Ar in " + page);
+                else
+                    Console.WriteLine("fail! can not change Ar in " + page);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Change Language Ar " + e.Message);
+            }
         }
 
         private static void ChangeLanguageEn(IWebDriver driver, string page)
         {
-            var language = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-en")).FindElement(By.TagName("a"));
+            try
+            {
+                var language = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-en")).FindElement(By.TagName("a"));
 
-            string links = language.GetAttribute("href");
+                string links = language.GetAttribute("href");
 
-            driver.Url = links.ToString();
-            string lang = driver.FindElement(By.TagName("html")).GetAttribute("lang");
-            if (lang == "en-US")
-                Console.WriteLine("success! change language En in " + page);
+                driver.Url = links.ToString();
+                string lang = driver.FindElement(By.TagName("html")).GetAttribute("lang");
+                if (lang == "en-US")
+                    Console.WriteLine("success! change language En in " + page);
 
-            else
-                Console.WriteLine("fail! can not change En in " + page);
+                else
+                    Console.WriteLine("fail! can not change En in " + page);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Change Language En " + e.Message);
+            }
         }
 
         private static void ChangeLanguageHe(IWebDriver driver, string page)
         {
-            var language = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-he")).FindElement(By.TagName("a"));
+            try
+            {
+                var language = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-he")).FindElement(By.TagName("a"));
 
-            string links = language.GetAttribute("href");
+                string links = language.GetAttribute("href");
 
-            driver.Url = links.ToString();
-            string lang = driver.FindElement(By.TagName("html")).GetAttribute("lang");
-            if (lang == "he-IL")
-                Console.WriteLine("success! change language He in " + page);
+                driver.Url = links.ToString();
+                string lang = driver.FindElement(By.TagName("html")).GetAttribute("lang");
+                if (lang == "he-IL")
+                    Console.WriteLine("success! change language He in " + page);
 
-            else
-                Console.WriteLine("fail! can not change He in " + page);
+                else
+                    Console.WriteLine("fail! can not change He in " + page);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Change Language He " + e.Message);
+            }
         }
 
     }
