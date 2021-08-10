@@ -32,13 +32,13 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            /**/
+            /*
             CloseFirstPopup(driver);
             Pagehome(driver);     
             PagesAcademicInstitution(driver);
-            FloorLearningObjectives(driver);
+            FloorLearningObjectives(driver);*/
             if (CoursesSection(driver)) success++; else failed++;
-            /**/
+            /*
             PagesCampusSchool(driver);
             BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
@@ -62,8 +62,8 @@ namespace Campus
             else
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
-            }
-            
+            }*/
+
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
         }
@@ -199,6 +199,7 @@ namespace Campus
 
         private static void PagesCampusSchool(IWebDriver driver)
         {
+            driver.Url = URL;
             Thread.Sleep(1000);
 
             int count_page = driver.FindElement(By.XPath("//*[@id='hp_school_1st']")).FindElements(By.TagName("a")).Count;
@@ -239,11 +240,14 @@ namespace Campus
                     course_link.Click();
                     Thread.Sleep(100);
                     if (driver.Title.Contains(course_title))
-                    {
                         Console.WriteLine("success! go to course");
-                        driver.Navigate().Back();
+
+                    else
+                    { 
+                        Console.WriteLine("fail! go to course");
+                        return false;
                     }
-                    else Console.WriteLine("fail! go to course");
+                    driver.Url = URL;
                 }
 
                 return true;
