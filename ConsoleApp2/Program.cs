@@ -2,35 +2,38 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.Environment;
+//RETURN
+//using System.Environment;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
-//using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Chrome;
 
 namespace Campus
 {
     class Program
     {
         //public static String URL = "https://campus.gov.il/";
-        // public static String URL = "https://stage.campus.gov.il/";
-        public static String URL = System.Environment.GetEnvironmentVariable("CAMPUS_URL");
+        public static String URL = "https://stage.campus.gov.il/";
+        //RETURN
+        //public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
         static void Main(string[] args)
         {
             int failed = 0;
             int success = 0;
-            ChromeOptions options = new ChromeOptions();
-            options.AddArgument("--headless");
-            options.AddArgument("--whitelisted-ips");
-            options.AddArgument("--no-sandbox");
-            options.AddArgument("--disable-extensions");
-            options.AddArgument("--disable-dev-shm-usage");        
-            IWebDriver driver = new ChromeDriver(options);
-            // IWebDriver driver = new FirefoxDriver();
+            //RETURN
+            //ChromeOptions options = new ChromeOptions();
+            //options.AddArgument("--headless");
+            //options.AddArgument("--whitelisted-ips");
+            //options.AddArgument("--no-sandbox");
+            //options.AddArgument("--disable-extensions");
+            //options.AddArgument("--disable-dev-shm-usage");        
+            //IWebDriver driver = new ChromeDriver(options);
+            IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            /**/
+            /*
             CloseFirstPopup(driver);
             Pagehome(driver);
             PagesAcademicInstitution(driver);
@@ -38,26 +41,31 @@ namespace Campus
             CoursesSection(driver);
             PagesCampusSchool(driver);
             BlenPageTests(driver);
-            associationPageTests(driver);
+            if (driver.Url.Contains("https://stage.campus.gov.il/"))
+            {
+                associationPageTests(driver);
+            }
+            else
+            {
+                Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
+            }
             CoursePage(driver);
             RegistrationAndeEnrollment(driver);
-            CoursesPage(driver);
+            CoursesPage(driver);*/
+            
             CoursesPageEnAr(driver);
-            AnEventHasPassed(driver);
+            /*AnEventHasPassed(driver);
             EventsPage(driver);
-            //AssimilationOrganization(driver);
+            if (driver.Url.Contains("https://campus.gov.il/"))
+            {
+                AssimilationOrganization(driver);
+            }
+            else
+            {
+                Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
+            }*/
 
             Quit(driver);
-
-            //לקמפוס    :
-            //associationPageTests(driver);
-            //ChatBotAvatar
-            //PastEvent(driver); - נופל שם לראשון כי אין לו איקון של לוח שנה. למרות שאמור להיות לו
-            //LanguageOptionInPosts - שינוי למטה
-
-            //לסטאג:
-            //AssimilationOrganization(driver);
-            //LanguageOptionInPosts - שינוי למטה
         }
 
         //messions functions
@@ -66,12 +74,10 @@ namespace Campus
             try
             {
                 driver.FindElements(By.CssSelector("[class='close-popup-course-button last-popup-element first-popup-element close-popup-button']"))[1].Click();
-                return true;
             }
             catch (Exception)
             {
                 Console.WriteLine("fail or impossible! doesn't have popup event in front");
-                return false;
             }
         }
 
@@ -93,9 +99,9 @@ namespace Campus
 
         private static void PagesAcademicInstitution(IWebDriver driver)
         {
-            int count_pages = driver.FindElement(By.Id("academic-institution-slider")).FindElements(By.TagName("a")).Count;
             for (int i = 0; i < 2; i++)
             {
+                Thread.Sleep(1000);
                 IWebElement page = driver.FindElement(By.Id("academic-institution-slider")).FindElements(By.CssSelector("div[aria-hidden='false']"))[i].FindElement(By.TagName("a"));
                 string title_page = page.FindElement(By.TagName("img")).GetAttribute("alt");
                 page?.Click();
@@ -198,7 +204,7 @@ namespace Campus
 
         private static void CoursesSection(IWebDriver driver)
         {
-            WaitForLoad(driver, 20);
+            Thread.Sleep(20);
             for (int i = 0; i < 2; i++)
             {
                 IWebElement course_link = driver.FindElements(By.ClassName("course-item-details"))[i];
@@ -210,7 +216,7 @@ namespace Campus
                     Console.WriteLine("success! go to course");
                     driver.Navigate().Back();
                 }
-                else Console.WriteLine("faild! go to course");
+                else Console.WriteLine("fail! go to course");
             }
         }
 
@@ -362,7 +368,7 @@ namespace Campus
             IWebElement link_learning_Objectives = driver.FindElement(By.ClassName("category-section")).FindElement(By.CssSelector("a[href='" + URL + "areas_of_knowledge/prepartion_for_matriculation_exams/']"));
             link_learning_Objectives?.Click();
             string title = driver.Title;
-            if (title.Contains("הכנה לבגרויות"))
+            if (title.Contains("לבגרויות"))
             {
                 var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "faq-section" };
                 foreach (var floor in class_floors)
@@ -372,11 +378,13 @@ namespace Campus
                 foreach (var floor in id_floors)
                     IdIsExists(floor, driver);
                 Console.WriteLine("success! all 6 floors are exists in  Preparation for matriculation");
-                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-                go_back?.Click();
+
             }
             else
                 Console.WriteLine("fail! go to Preparation for matriculation ");
+
+            IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+            go_back?.Click();
         }
 
         private static void School(IWebDriver driver)
@@ -394,12 +402,13 @@ namespace Campus
                 foreach (var floor in id_floors)
                     IdIsExists(floor, driver);
                 Console.WriteLine("success! all 7 floors are exists in high-tech-school");
-                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-                go_back?.Click();
 
             }
             else
                 Console.WriteLine("fail! go to  school");
+
+            IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+            go_back?.Click();
         }
 
         private static void Education(IWebDriver driver)
@@ -417,11 +426,12 @@ namespace Campus
                 foreach (var floor in id_floors)
                     IdIsExists(floor, driver);
                 Console.WriteLine("success! all 6 floors are exists in academic-education-and-broadening-horizons");
-                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-                go_back?.Click();
             }
             else
                 Console.WriteLine("fail! go to education");
+
+            IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+            go_back?.Click();
         }
 
         private static void CountCourse(IWebDriver driver)
@@ -443,10 +453,15 @@ namespace Campus
 
             try
             {
-                //h2 = סטאג
-                IWebElement myElement = driver.FindElement(By.XPath("//h2[text() = 'שפה']"));
-                //h5 = קמפוס
-                //IWebElement myElement = driver.FindElement(By.XPath("//h5[text() = 'שפה']"));
+                IWebElement myElement;
+                if (driver.Url.Contains("https://stage.campus.gov.il/"))
+                {
+                    myElement = driver.FindElement(By.XPath("//h2[text() = 'שפה']"));
+                }
+                else
+                {
+                    myElement = driver.FindElement(By.XPath("//h5[text() = 'שפה']"));
+                }
                 IWebElement parent = myElement.FindElement(By.XPath("./.."));
                 var labels = parent.FindElements(By.TagName("label"));
                 foreach (var lable in labels)
@@ -491,7 +506,7 @@ namespace Campus
             }
             else
             {
-                Console.WriteLine("faild! not show all " + language + " posts :( ");
+                Console.WriteLine("fail! not show all " + language + " posts :( ");
             }
             ////click on checkbox language to unchecked
             jse.ExecuteScript("arguments[0].click();", input);
@@ -518,7 +533,7 @@ namespace Campus
                     Console.WriteLine("success! go to course");
                     driver.Navigate().Back();
                 }
-                else Console.WriteLine("faild! go to course");
+                else Console.WriteLine("fail! go to course");
 
             }
         }
@@ -532,11 +547,6 @@ namespace Campus
                 Console.WriteLine("fail! don't have title in banner");
         }
 
-        /*
-        private static void LogoAHybridCourse(IWebDriver driver)
-        {
-            Console.WriteLine(driver.FindElement(By.XPath("//h1[@id='hybrid_banner_h1']/:before")).GetCssValue("background"));
-        }*/
 
         private static void BlendPageRegistrationButton(IWebDriver driver)
         {
@@ -654,7 +664,7 @@ namespace Campus
         {
             driver.Url = url;
             driver.FindElement(By.Id("menu-item-6449")).Click();
-            Thread.Sleep(300);
+            Thread.Sleep(400);
             if (driver.Title.Contains("קורסים"))
                 Console.WriteLine("success! the button navigate to courses page");
 
@@ -696,14 +706,23 @@ namespace Campus
 
         private static void ChatBotAvatar(IWebDriver driver, string url)
         {
-            driver.Url = url;
-            driver.FindElement(By.Id("ChatBotAvatar")).Click();
-            WaitForLoad(driver, 50);
-            IWebElement a = driver.FindElement(By.CssSelector("iframe[id='ChatBotFrame']"));
-            if (a.Displayed)
-                Console.WriteLine("success to open chat with campus!");
-            else
-                Console.WriteLine("fail to open chat with campus :(");
+            try
+            {
+                driver.Url = url;
+                driver.FindElement(By.Id("ChatBotAvatar")).Click();
+                Thread.Sleep(50);
+                IWebElement a = driver.FindElement(By.CssSelector("iframe[id='ChatBotFrame']"));
+                if (a.Displayed)
+                    Console.WriteLine("success to open chat with campus!");
+                else
+                    Console.WriteLine("fail to open chat with campus :(");
+            }
+            catch (Exception e)
+            {
+
+                Console.WriteLine("fail! ChatBotAvatar " + e.Message);
+            }
+
         }
 
         private static void CoursePageRegistrationButton(IWebDriver driver)
@@ -740,7 +759,7 @@ namespace Campus
         {
             IWebElement play_video = driver.FindElement(By.CssSelector("div[class='banner-image about-course gray-part d-none d-lg-inline-block']")).FindElement(By.TagName("a"));
             play_video?.Click();
-            Thread.Sleep(150);
+            Thread.Sleep(500);
             string opacity = driver.FindElement(By.Id("popup_overlay_2020")).GetCssValue("opacity");
             if (opacity == "1")
                 Console.WriteLine("success! play course video");
@@ -956,7 +975,7 @@ namespace Campus
             if (green_button.Displayed && green_button.Text == "לעמוד הקורס")
                 Console.WriteLine("success! green button text in course page is to course page");
             else
-                Console.WriteLine("fail! green button text in course page is to course page");
+                Console.WriteLine("fail! green button text in course page is to course page. The current course may have been deleted from my personal area");
         }
 
         private static void ToBlendCoursePage(IWebDriver driver)
@@ -982,36 +1001,47 @@ namespace Campus
 
         private static void Filters(IWebDriver driver, IWebElement input, string filter_name = "")
         {
-            IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
-            jse.ExecuteScript("arguments[0].click();", input);
 
-            Thread.Sleep(470);
-
-            driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
-
-            Thread.Sleep(30000);
-            /*
-            if (driver.FindElement(By.CssSelector("[class='filter_dynamic_tag ajax_filter_tag']")) != null)
+            try
             {
-            Console.WriteLine("course_load_more?  " + driver.FindElement(By.Id("course_load_more")).Displayed);*/
-            while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+
+                Thread.Sleep(800);
+                driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
+
+                Thread.Sleep(10000);
+                try
+                {
+                    while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                    {
+                        driver.FindElement(By.Id("course_load_more")).Click();
+                        Thread.Sleep(500);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("fail! click on load more button " + e.Message);
+                }
+
+
+                Console.WriteLine("success! filtering of " + filter_name);
+                int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+                if (sum_course_text == sum_course_list)
+                    Console.WriteLine("success! text sum is equal to courses list");
+                else
+                    Console.WriteLine("fail! text sum is not equal to courses list");
+
+                jse.ExecuteScript("arguments[0].click();", input);
+            }
+            catch (Exception e)
             {
-                driver.FindElement(By.Id("course_load_more")).Click();
-                Thread.Sleep(170);
+
+                Console.WriteLine("fail! filter" + e.Message);
             }
 
-            Console.WriteLine("success! filtering of " + filter_name);
-            int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
-            int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
-            if (sum_course_text == sum_course_list)
-                Console.WriteLine("success! text sum is equal to courses list");
-            else
-                Console.WriteLine("fail! text sum is not equal to courses list");
-            /*}
-            else
-                Console.WriteLine("fail! can not filtering of " + filter_name);*/
 
-            jse.ExecuteScript("arguments[0].click();", input);
         }
 
         private static void FilterByWhatIsInteresting(IWebDriver driver)
@@ -1055,7 +1085,7 @@ namespace Campus
                 while (driver.FindElement(By.Id("course_load_more")).Displayed)
                 {
                     driver.FindElement(By.Id("course_load_more")).Click();
-                    WaitForLoad(driver, 15);
+                    Thread.Sleep(15);
                 }
 
                 Console.WriteLine("success! filtering of " + filter_name);
@@ -1254,7 +1284,7 @@ namespace Campus
             {
                 course_load_more.Click();
             }
-            WaitForLoad(driver, 300);
+            Thread.Sleep(300);
             int count_list_events = driver.FindElements(By.ClassName("item_post_type_event")).Count;
             int text_count_events = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
 
@@ -1457,16 +1487,15 @@ namespace Campus
             }
         }
 
-        public static void WaitForLoad(IWebDriver driver, int timeoutSec = 15)
+        /*public static void WaitForLoad(IWebDriver driver, int timeoutSec = 15)
         {
-            /*
-            IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(1));
-            wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));*/
+            //IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(1));
+            //wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
             WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 0, timeoutSec));
             wait.Until(wd => js.ExecuteScript("return document.readyState").ToString() == "complete");
             Console.WriteLine("finish WaitForLoad");
-        }
+        }*/
 
         private static bool IfSiteLanguageHaveChanged(IWebDriver driver, string lang_language, string str_language)
         {
