@@ -35,10 +35,10 @@ namespace Campus
             driver.Navigate().GoToUrl(URL);
             /*
             CloseFirstPopup(driver);
-            Pagehome(driver);
-            PagesAcademicInstitution(driver);
+            Pagehome(driver);     
+            PagesAcademicInstitution(driver);*/
             FloorLearningObjectives(driver);
-            CoursesSection(driver);
+            /*CoursesSection(driver);
             PagesCampusSchool(driver);
             BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
@@ -51,10 +51,9 @@ namespace Campus
             }
             CoursePage(driver);
             RegistrationAndeEnrollment(driver);
-            CoursesPage(driver);*/
-            
+            CoursesPage(driver);
             CoursesPageEnAr(driver);
-            /*AnEventHasPassed(driver);
+            AnEventHasPassed(driver);
             EventsPage(driver);
             if (driver.Url.Contains("https://campus.gov.il/"))
             {
@@ -63,7 +62,8 @@ namespace Campus
             else
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
-            }*/
+            }
+            */
 
             Quit(driver);
         }
@@ -83,18 +83,28 @@ namespace Campus
 
         private static void Pagehome(IWebDriver driver)
         {
-            //if all floors in home page are exists:
             var class_floors = new List<string>() { "banner-wrapper", "academic-institution", "category-section", "courses-section", "faq-section", "testimonials-slider-section" };
+            int existing_floors = 0, non_existing_floors = 0;
             foreach (var floor in class_floors)
             {
-                ClassIsExists(floor, driver);
+                if (ClassIsExists(floor, driver))
+                    existing_floors++;
+                else
+                    non_existing_floors++;
             }
             var id_floors = new List<string>() { "hp_school_1st", "hp_school_2nd", "how-it-work" };
             foreach (var floor in id_floors)
             {
-                IdIsExists(floor, driver);
+                if (IdIsExists(floor, driver))
+                    existing_floors++;
+                else
+                    non_existing_floors++;
             }
-            Console.WriteLine("all 7 floors are exist in PH");
+            if (non_existing_floors == 0)
+                Console.WriteLine("success! Home Page have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+            else
+                Console.WriteLine("fail! Home Page have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+
         }
 
         private static void PagesAcademicInstitution(IWebDriver driver)
@@ -371,13 +381,29 @@ namespace Campus
             if (title.Contains("לבגרויות"))
             {
                 var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "faq-section" };
+
+                int existing_floors = 0, non_existing_floors = 0;
                 foreach (var floor in class_floors)
-                    ClassIsExists(floor, driver);
+                {
+                    if (ClassIsExists(floor, driver))
+                        existing_floors++;
+                    else
+                        non_existing_floors++;
+                }
 
                 var id_floors = new List<string>() { "how-it-work" };
                 foreach (var floor in id_floors)
-                    IdIsExists(floor, driver);
-                Console.WriteLine("success! all 6 floors are exists in  Preparation for matriculation");
+                {
+                    if (IdIsExists(floor, driver))
+                        existing_floors++;
+                    else
+                        non_existing_floors++;
+                }
+
+                if (non_existing_floors == 0)
+                    Console.WriteLine("success! Preparation for matriculation have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                else
+                    Console.WriteLine("fail! Preparation for matriculation have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
 
             }
             else
@@ -395,13 +421,28 @@ namespace Campus
             if (title.Contains("בית ספר לקריירה והייטק"))
             {
                 var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "testimonials-lobby-knowledge", "faq-section" };
+                int existing_floors = 0, non_existing_floors = 0;
                 foreach (var floor in class_floors)
-                    ClassIsExists(floor, driver);
+                {
+                    if (ClassIsExists(floor, driver))
+                        existing_floors++;
+                    else
+                        non_existing_floors++;
+                }
 
                 var id_floors = new List<string>() { "how-it-work" };
                 foreach (var floor in id_floors)
-                    IdIsExists(floor, driver);
-                Console.WriteLine("success! all 7 floors are exists in high-tech-school");
+                {
+                    if (IdIsExists(floor, driver))
+                        existing_floors++;
+                    else
+                        non_existing_floors++;
+                }
+
+                if (non_existing_floors == 0)
+                    Console.WriteLine("success! High-tech-school have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                else
+                    Console.WriteLine("fail! High-tech-school have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
 
             }
             else
@@ -419,13 +460,28 @@ namespace Campus
             if (title.Contains("השכלה אקדמית"))
             {
                 var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "faq-section" };
+                int existing_floors = 0, non_existing_floors = 0;
                 foreach (var floor in class_floors)
-                    ClassIsExists(floor, driver);
+                {
+                    if (ClassIsExists(floor, driver))
+                        existing_floors++;
+                    else
+                        non_existing_floors++;
+                }
 
                 var id_floors = new List<string>() { "how-it-work" };
                 foreach (var floor in id_floors)
-                    IdIsExists(floor, driver);
-                Console.WriteLine("success! all 6 floors are exists in academic-education-and-broadening-horizons");
+                {
+                    if (IdIsExists(floor, driver))
+                        existing_floors++;
+                    else
+                        non_existing_floors++;
+                }
+
+                if (non_existing_floors == 0)
+                    Console.WriteLine("success! Academic-education-and-broadening-horizons have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                else
+                    Console.WriteLine("fail! Academic-education-and-broadening-horizons have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
             }
             else
                 Console.WriteLine("fail! go to education");
@@ -1461,29 +1517,32 @@ namespace Campus
             driver.Quit();
         }
 
-        private static void ClassIsExists(string classNameFloor, IWebDriver driver)
+        private static bool ClassIsExists(string classNameFloor, IWebDriver driver)
         {
-            IWebElement element = driver.FindElement(By.ClassName(classNameFloor));
-            if (element != null)
+            try
             {
-                //Console.WriteLine(classNameFloor + " exists!");
+                IWebElement element = driver.FindElement(By.ClassName(classNameFloor));
+                return true;
             }
-            else
+            catch (Exception)
             {
-                Console.WriteLine(classNameFloor + "Not exists!");
+                Console.WriteLine("fail! class " + classNameFloor + " not exists.");
+                return false;
             }
+
         }
 
-        private static void IdIsExists(string idFloor, IWebDriver driver)
+        private static bool IdIsExists(string idFloor, IWebDriver driver)
         {
-            IWebElement element = driver.FindElement(By.Id(idFloor));
-            if (element != null)
+            try
             {
-                //Console.WriteLine(idFloor + " exists!");
+                IWebElement element = driver.FindElement(By.Id(idFloor));
+                return true;
             }
-            else
+            catch (Exception)
             {
-                Console.WriteLine(idFloor + "Not exists!");
+                Console.WriteLine("fail! id " + idFloor + " not exists.");
+                return false;
             }
         }
 
