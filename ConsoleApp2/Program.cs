@@ -1815,15 +1815,6 @@ namespace Campus
         }
 
         //global functions
-        public static List<string>[] Globals()
-        {
-            //change site language:
-            List<string>[] languages = new List<string>[3];
-            languages[0] = new List<string> { "ar", "wpml-ls-item-ar", "Arabic" };
-            languages[1] = new List<string> { "en-US", "wpml-ls-item-en", "English" };
-            languages[2] = new List<string> { "he-IL", "wpml-ls-item-he", "Hebrew" };
-            return languages;
-        }
 
         private static void Quit(IWebDriver driver)
         {
