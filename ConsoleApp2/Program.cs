@@ -33,13 +33,13 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            
+
             if (CloseFirstPopup(driver)) success++; else failed++;
-            /*if (Pagehome(driver)) success++; else failed++;
+            if (Pagehome(driver)) success++; else failed++;
             if (PagesAcademicInstitution(driver)) success++; else failed++;
-            if (FloorLearningObjectives(driver)) success++; else failed++;
+            FloorLearningObjectives(driver);
             if (CoursesSection(driver)) success++; else failed++;
-            if (PagesCampusSchool(driver)) success++; else failed++;*/
+            //if (PagesCampusSchool(driver)) success++; else failed++;
             BlenPageTests(driver);/*
             if (driver.Url.Contains("https://stage.campus.gov.il/") && associationPageTests(driver))
             {
@@ -191,21 +191,21 @@ namespace Campus
 
         }
 
-        private static bool FloorLearningObjectives(IWebDriver driver)
+        private static void FloorLearningObjectives(IWebDriver driver)
         {
             driver.Url = URL;
             Console.WriteLine("go to Learning Objectives page");
             //הכנה לבגרויות
-            return (PreparationForMatriculation(driver)) ? true : false;
+            if (PreparationForMatriculation(driver)) success++; else failed++;
 
             Thread.Sleep(100);
             //בית ספר
             //driver.Url = URL;
-            return (School(driver)) ? true : false;
+            if (School(driver)) success++; else failed++;
             Thread.Sleep(200);
             //השכלה
             //driver.Url = URL;
-            return (Education(driver)) ? true : false;
+            if (Education(driver)) success++; else failed++;
 
         }
 
@@ -995,11 +995,11 @@ namespace Campus
             {
                 driver.Url = url;
                 driver.FindElement(By.Id("menu-item-21855")).Click();
-                if (driver.Title != "צור קשר - קמפוס IL")
-                    Console.WriteLine("fail! can't navigate to support page");
+                if (driver.Title.Contains("צור קשר"))
+                    Console.WriteLine("success! the button navigate to support page");
                 else
                 {
-                    Console.WriteLine("success! the button navigate to support page");
+                    Console.WriteLine("fail! can't navigate to support page");
                     return false;
                 }
 
@@ -1034,7 +1034,7 @@ namespace Campus
             {
 
                 Console.WriteLine("fail! ChatBotAvatar " + e.Message);
-                return true;
+                return false;
             }
 
         }
@@ -1109,6 +1109,7 @@ namespace Campus
 
         private static bool MoreInfo(IWebDriver driver)
         {
+            int flag = 0;
             try
             {
                 string start_date = driver.FindElement(By.ClassName("start-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
@@ -1118,14 +1119,12 @@ namespace Campus
                 else
                 {
                     Console.WriteLine("fail! can not get start date");
-                    return false;
                 }
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! MoreInfo start_date " + e.Message);
-                return false;
+                flag = 1;
             }
 
             try
@@ -1137,14 +1136,12 @@ namespace Campus
                 else
                 {
                     Console.WriteLine("fail! can not get price");
-                    return false;
                 }
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! MoreInfo price " + e.Message);
-                return true;
+                flag = 1;
             }
 
             try
@@ -1156,15 +1153,14 @@ namespace Campus
                 else
                 {
                     Console.WriteLine("fail! can not get duration of the course");
-                    return false;
                 }
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! MoreInfo duration_of_course " + e.Message);
-                return false;
+                flag = 1;
             }
+            return (flag == 1) ? false : true;
 
         }
 
@@ -2103,7 +2099,7 @@ namespace Campus
         {
             try
             {
-                var language = driver.FindElement(By.CssSelector("~div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-en")).FindElement(By.TagName("a"));
+                var language = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElement(By.ClassName("wpml-ls-item-en")).FindElement(By.TagName("a"));
 
                 string links = language.GetAttribute("href");
 
