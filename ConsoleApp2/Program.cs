@@ -52,8 +52,8 @@ namespace Campus
             if (CoursePage(driver)) success++; else failed++;
             if (RegistrationAndeEnrollment(driver)) success++; else failed++;
             if (CoursesPage(driver)) success++; else failed++;
+            if (CoursesPageEnAr(driver)) success++; else failed++;
             /**/
-            CoursesPageEnAr(driver);
             AnEventHasPassed(driver);
             EventsPage(driver);
             if (driver.Url.Contains("https://campus.gov.il/"))
@@ -366,7 +366,7 @@ namespace Campus
             return true;
         }
 
-        private static void CoursesPageEnAr(IWebDriver driver)
+        private static bool CoursesPageEnAr(IWebDriver driver)
         {
             NavigateCoursesPage(driver, URL);
 
@@ -381,6 +381,7 @@ namespace Campus
             FilterByWhatIsInterestingEnAr(driver, "areas_of_knowledge_884");
             FilterByTechEnAr(driver, "subject_1029");
             FilterByLanguageEnAr(driver, "language_401");
+            return true;
         }
 
         private static void AnEventHasPassed(IWebDriver driver)
@@ -1465,60 +1466,97 @@ namespace Campus
 
         private static void FilterByInstitutionEnAr(IWebDriver driver, string input_checkbox)
         {
-            IWebElement institution = driver.FindElement(By.CssSelector("button[class='filter_main_button dropdown_open']"));
-            institution?.Click();
+            try
+            {
+                IWebElement institution = driver.FindElement(By.CssSelector("button[class='filter_main_button dropdown_open']"));
+                institution?.Click();
 
-            IWebElement input = driver.FindElement(By.Id(input_checkbox));
-            FiltersEnAr(driver, input, "institution");
+                IWebElement input = driver.FindElement(By.Id(input_checkbox));
+                FiltersEnAr(driver, input, "institution");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByInstitutionEnAr " + e.Message);
+            }
+
 
         }
 
         private static void FiltersEnAr(IWebDriver driver, IWebElement input, string filter_name = "")
         {
-            IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
-            jse.ExecuteScript("arguments[0].click();", input);
-
-            if (driver.FindElement(By.CssSelector("div[class='row wrap-top-bar-search']")).FindElement(By.CssSelector("[class='filter_dynamic_tag']")) != null)
+            try
             {
-                while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+
+                if (driver.FindElement(By.CssSelector("div[class='row wrap-top-bar-search']")).FindElement(By.CssSelector("[class='filter_dynamic_tag']")) != null)
                 {
-                    driver.FindElement(By.Id("course_load_more")).Click();
-                    Thread.Sleep(15);
+                    while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                    {
+                        driver.FindElement(By.Id("course_load_more")).Click();
+                        Thread.Sleep(15);
+                    }
+
+                    Console.WriteLine("success! filtering of " + filter_name);
+                    int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                    int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+                    if (sum_course_text == sum_course_list)
+                        Console.WriteLine("success! text sum is equal to courses list");
+                    else
+                        Console.WriteLine("fail! text sum is not equal to courses list");
                 }
-
-                Console.WriteLine("success! filtering of " + filter_name);
-                int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
-                int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
-                if (sum_course_text == sum_course_list)
-                    Console.WriteLine("success! text sum is equal to courses list");
                 else
-                    Console.WriteLine("fail! text sum is not equal to courses list");
-            }
-            else
-                Console.WriteLine("fail! can not filtering of " + filter_name);
+                    Console.WriteLine("fail! can not filtering of " + filter_name);
 
-            jse.ExecuteScript("arguments[0].click();", input);
+                jse.ExecuteScript("arguments[0].click();", input);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FiltersEnAr " + e.Message);
+            }
+
         }
 
         private static void FilterByWhatIsInterestingEnAr(IWebDriver driver, string input_checkbox)
         {
+            try
+            {
+                IWebElement input = driver.FindElement(By.Id(input_checkbox));
+                FiltersEnAr(driver, input, "what is interesting");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByWhatIsInterestingEnAr " + e.Message);
+            }
 
-            IWebElement input = driver.FindElement(By.Id(input_checkbox));
-            FiltersEnAr(driver, input, "what is interesting");
         }
 
         private static void FilterByTechEnAr(IWebDriver driver, string input_checkbox)
         {
+            try
+            {
+                IWebElement input = driver.FindElement(By.Id(input_checkbox));
+                FiltersEnAr(driver, input, "Technology and computers");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByTechEnAr " + e.Message);
+            }
 
-            IWebElement input = driver.FindElement(By.Id(input_checkbox));
-            FiltersEnAr(driver, input, "Technology and computers");
         }
 
         private static void FilterByLanguageEnAr(IWebDriver driver, string input_checkbox)
         {
+            try
+            {
+                IWebElement input = driver.FindElement(By.Id(input_checkbox));
+                FiltersEnAr(driver, input, "languages");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByLanguageEnAr " + e.Message);
+            }
 
-            IWebElement input = driver.FindElement(By.Id(input_checkbox));
-            FiltersEnAr(driver, input, "languages");
         }
 
         private static void EventProducerLogo(IWebDriver driver)
