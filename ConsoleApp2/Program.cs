@@ -51,8 +51,8 @@ namespace Campus
             }
             if (CoursePage(driver)) success++; else failed++;
             if (RegistrationAndeEnrollment(driver)) success++; else failed++;
+            if (CoursesPage(driver)) success++; else failed++;
             /**/
-            CoursesPage(driver);
             CoursesPageEnAr(driver);
             AnEventHasPassed(driver);
             EventsPage(driver);
@@ -354,7 +354,7 @@ namespace Campus
             return true;
         }
 
-        private static void CoursesPage(IWebDriver driver)
+        private static bool CoursesPage(IWebDriver driver)
         {
             Console.WriteLine("go to courses page");
             NavigateCoursesPage(driver, URL);
@@ -363,7 +363,7 @@ namespace Campus
             FilterByTech(driver);
             FilterByLanguage(driver);
             //אותם בדיקות לאתר הנוכחי באנגלית + ערבית
-
+            return true;
         }
 
         private static void CoursesPageEnAr(IWebDriver driver)
@@ -1363,12 +1363,18 @@ namespace Campus
 
         private static void FilterByInstitution(IWebDriver driver)
         {
-            IWebElement institution = driver.FindElement(By.CssSelector("button[class='filter_main_button dropdown_open']"));
-            institution?.Click();
+            try
+            {
+                IWebElement institution = driver.FindElement(By.CssSelector("button[class='filter_main_button dropdown_open']"));
+                institution?.Click();
 
-            IWebElement input = driver.FindElement(By.Id("institution_1128"));
-            Filters(driver, input, "institution");
-
+                IWebElement input = driver.FindElement(By.Id("institution_1128"));
+                Filters(driver, input, "institution");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByInstitution " + e.Message);
+            }
         }
 
         private static void Filters(IWebDriver driver, IWebElement input, string filter_name = "")
@@ -1409,7 +1415,6 @@ namespace Campus
             }
             catch (Exception e)
             {
-
                 Console.WriteLine("fail! filter" + e.Message);
             }
 
@@ -1418,23 +1423,44 @@ namespace Campus
 
         private static void FilterByWhatIsInteresting(IWebDriver driver)
         {
+            try
+            {
+                IWebElement input = driver.FindElement(By.Id("areas_of_knowledge_876"));
+                Filters(driver, input, "what is interesting");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByWhatIsInteresting " + e.Message);
+            }
 
-            IWebElement input = driver.FindElement(By.Id("areas_of_knowledge_876"));
-            Filters(driver, input, "what is interesting");
         }
 
         private static void FilterByTech(IWebDriver driver)
         {
+            try
+            {
+                IWebElement input = driver.FindElement(By.Id("subject_715"));
+                Filters(driver, input, "Technology and computers");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByTech " + e.Message);
+            }
 
-            IWebElement input = driver.FindElement(By.Id("subject_715"));
-            Filters(driver, input, "Technology and computers");
         }
 
         private static void FilterByLanguage(IWebDriver driver)
         {
+            try
+            {
+                IWebElement input = driver.FindElement(By.Id("language_111"));
+                Filters(driver, input, "languages");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByLanguage " + e.Message);
+            }
 
-            IWebElement input = driver.FindElement(By.Id("language_111"));
-            Filters(driver, input, "languages");
         }
 
         private static void FilterByInstitutionEnAr(IWebDriver driver, string input_checkbox)
