@@ -49,8 +49,8 @@ namespace Campus
                 failed++;
                 Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
             }
-            /**/CoursePage(driver);
-            RegistrationAndeEnrollment(driver);
+            if (CoursePage(driver)) success++; else failed++;
+            /**/RegistrationAndeEnrollment(driver);
             CoursesPage(driver);
             CoursesPageEnAr(driver);
             AnEventHasPassed(driver);
@@ -315,7 +315,7 @@ namespace Campus
             return true;
         }
 
-        private static void CoursePage(IWebDriver driver)
+        private static bool CoursePage(IWebDriver driver)
         {
             driver.Url = URL + "course/course-v1-mse-gov_psychometry/";
             Console.WriteLine("go to course page");
@@ -329,6 +329,7 @@ namespace Campus
             ChangeLanguageHe(driver, "Course Page");
 
             CoursePageRegistrationButton(driver);
+            return true;
         }
 
         private static void RegistrationAndeEnrollment(IWebDriver driver)
@@ -973,48 +974,70 @@ namespace Campus
 
         private static void CoursePageRegistrationButton(IWebDriver driver)
         {
-            IWebElement a = driver.FindElement(By.CssSelector("a[class='signup-course-button con_to_course ']"));
-            if (a.Text == "הרשמה לcampusIL")
-                Console.WriteLine("success! registration button have the correct text");
-            else
-                Console.WriteLine("fail! registration button  doesn't have the correct text");
-
-            a.Click();
-            var browserTabs = driver.WindowHandles;
-            driver.SwitchTo().Window(browserTabs[1]);
-
-            //check is it correct page opened or not 
-            if (driver.Title.Contains("היכנס או צור חשבון"))
+            try
             {
-                Console.WriteLine("success! button registration send user to registration page in course page");
+                IWebElement a = driver.FindElement(By.CssSelector("a[class='signup-course-button con_to_course ']"));
+                if (a.Text == "הרשמה לcampusIL")
+                    Console.WriteLine("success! registration button have the correct text");
+                else
+                    Console.WriteLine("fail! registration button  doesn't have the correct text");
+
+                a.Click();
+                var browserTabs = driver.WindowHandles;
+                driver.SwitchTo().Window(browserTabs[1]);
+
+                //check is it correct page opened or not 
+                if (driver.Title.Contains("היכנס או צור חשבון"))
+                {
+                    Console.WriteLine("success! button registration send user to registration page in course page");
+                }
+                else
+                    Console.WriteLine("registration button doesn't send to registration page in course page");
+                //close tab and get back
+                driver.Close();
+                driver.SwitchTo().Window(browserTabs[0]);
             }
-            else
-                Console.WriteLine("registration button doesn't send to registration page in course page");
-            //close tab and get back
-            driver.Close();
-            driver.SwitchTo().Window(browserTabs[0]);
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! CoursePageRegistrationButton " + e.Message);
+            }
+
         }
 
         private static void CourseLecturer(IWebDriver driver)
         {
+
             int count_lecturer = driver.FindElements(By.ClassName("content-lecturer")).Count;
-            Console.WriteLine("success! count lecturers " + count_lecturer);
+            if (count_lecturer == 0)
+                Console.WriteLine("fail! Course Lecturer. class name:content-lecturer does not exists");
+
+            else
+                Console.WriteLine("success! count lecturers " + count_lecturer);
+
         }
 
         private static void PlayVideo(IWebDriver driver)
         {
-            IWebElement play_video = driver.FindElement(By.CssSelector("div[class='banner-image about-course gray-part d-none d-lg-inline-block']")).FindElement(By.TagName("a"));
-            play_video?.Click();
-            Thread.Sleep(500);
-            string opacity = driver.FindElement(By.Id("popup_overlay_2020")).GetCssValue("opacity");
-            if (opacity == "1")
-                Console.WriteLine("success! play course video");
-            else
-                Console.WriteLine("fail! can not play course video");
+            try
+            {
+                IWebElement play_video = driver.FindElement(By.CssSelector("div[class='banner-image about-course gray-part d-none d-lg-inline-block']")).FindElement(By.TagName("a"));
+                play_video?.Click();
+                Thread.Sleep(500);
+                string opacity = driver.FindElement(By.Id("popup_overlay_2020")).GetCssValue("opacity");
+                if (opacity == "1")
+                    Console.WriteLine("success! play course video");
+                else
+                    Console.WriteLine("fail! can not play course video");
 
-            IWebElement close_video = driver.FindElement(By.ClassName("close-popup-button-2020"));
-            close_video?.Click();
-            Console.WriteLine("success! close play course video");
+                IWebElement close_video = driver.FindElement(By.ClassName("close-popup-button-2020"));
+                close_video?.Click();
+                Console.WriteLine("success! close play course video");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! PlayVideo " + e.Message);
+            }
+
         }
 
         private static void MoreInfo(IWebDriver driver)
@@ -1082,8 +1105,7 @@ namespace Campus
                 }
             }
             else
-                Console.WriteLine("fail! do not have flooded posters");
-
+                Console.WriteLine("fail! do not have flooded posters or class name does not exists");
 
         }
 
