@@ -33,14 +33,14 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-
             if (CloseFirstPopup(driver)) success++; else failed++;
             if (Pagehome(driver)) success++; else failed++;
             if (PagesAcademicInstitution(driver)) success++; else failed++;
             FloorLearningObjectives(driver);
             if (CoursesSection(driver)) success++; else failed++;
-            //if (PagesCampusSchool(driver)) success++; else failed++;
-            BlenPageTests(driver);/*
+            if (PagesCampusSchool(driver)) success++; else failed++;
+            BlenPageTests(driver);
+            /*
             if (driver.Url.Contains("https://stage.campus.gov.il/") && associationPageTests(driver))
             {
                 success++;
@@ -229,11 +229,12 @@ namespace Campus
                     {
                         Console.WriteLine("success! course page");
                         //בודק אם מספר הקורסים המוצג בכותרת שווה לכמות הקורסים המוצגים
-                        CountCourse(driver);
-                        LanguageOptionInPosts(driver);
-                        ChangeLanguageEn(driver, "Courses Page");
-                        ChangeLanguageAr(driver, "Courses Page");
-                        ChangeLanguageHe(driver, "Courses Page");
+                        if (CountCourse(driver)) success++; else failed++;
+                        // בודק אם יש אפשרות של סינון שפה -> אם כן אז שולף את השפה ובודק תקינות סינון של השפה שנבחרה
+                        LanguagesOptions(driver);
+                        if (ChangeLanguageEn(driver, "Courses Page")) success++; else failed++;
+                        if (ChangeLanguageAr(driver, "Courses Page")) success++; else failed++;
+                        if (ChangeLanguageHe(driver, "Courses Page")) success++; else failed++;
 
                     }
                     else
@@ -578,7 +579,7 @@ namespace Campus
             return true;
         }
 
-        private static void CountCourse(IWebDriver driver)
+        private static bool CountCourse(IWebDriver driver)
         {
             try
             {
@@ -591,47 +592,56 @@ namespace Campus
                 else
                 {
                     Console.WriteLine(sum_course_title + " != " + sum_list_course + " :( ");
+                    return false;
                 }
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! Count Course " + e.Message);
+                return false;
             }
 
         }
 
-        private static void LanguageOptionInPosts(IWebDriver driver)
+        private static void LanguagesOptions(IWebDriver driver)
         {
-
             try
             {
                 IWebElement myElement;
                 if (driver.Url.Contains("https://stage.campus.gov.il/"))
-                {
                     myElement = driver.FindElement(By.XPath("//h2[text() = 'שפה']"));
-                }
                 else
-                {
                     myElement = driver.FindElement(By.XPath("//h5[text() = 'שפה']"));
-                }
                 IWebElement parent = myElement.FindElement(By.XPath("./.."));
                 var labels = parent.FindElements(By.TagName("label"));
                 foreach (var lable in labels)
                 {
                     var forLang = lable.GetAttribute("for");
-                    if (forLang == "language_111")
-                        CheckChoosingLanguageOfPosts(driver, "Arabic", "language_111", "language_111");
-                    else
+                    switch (forLang)
                     {
-                        if (forLang == "language_110")
-                            CheckChoosingLanguageOfPosts(driver, "English", "language_110", "language_110");
-                        else
-                        {
-                            if (forLang == "language_109")
-                                CheckChoosingLanguageOfPosts(driver, "Hebrew", "language_109", "language_109");
-                            else
-                                Console.WriteLine("fail! language of posts");
-                        }
+                        case "language_111":
+                            {
+                                if (CheckChoosingLanguageOfPosts(driver, "Arabic", "language_111", "language_111")) success++; else failed++; ;
+                                break;
+                            }
+
+                        case "language_110":
+                            {
+                                if (CheckChoosingLanguageOfPosts(driver, "English", "language_110", "language_110")) success++; else failed++;
+                                break;
+                            }
+
+                        case "language_109":
+                            {
+                                if (CheckChoosingLanguageOfPosts(driver, "Hebrew", "language_109", "language_109")) success++; else failed++;
+                                break;
+                            }
+
+                        default:
+                            {
+                                Console.WriteLine("fail! language of posts"); break;
+                            }
                     }
                 }
             }
@@ -641,7 +651,7 @@ namespace Campus
             }
         }
 
-        private static void CheckChoosingLanguageOfPosts(IWebDriver driver, string language, string label_language, string input_language)
+        private static bool CheckChoosingLanguageOfPosts(IWebDriver driver, string language, string label_language, string input_language)
         {
             try
             {
@@ -660,13 +670,17 @@ namespace Campus
                 else
                 {
                     Console.WriteLine("fail! not show all " + language + " posts :( ");
+                    return false;
                 }
                 ////click on checkbox language to unchecked
                 jse.ExecuteScript("arguments[0].click();", input);
+
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! Check Choosing Language Of Posts " + e.Message);
+                return false;
             }
         }
 
