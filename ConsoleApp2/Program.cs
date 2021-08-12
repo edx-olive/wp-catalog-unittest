@@ -52,8 +52,8 @@ namespace Campus
             RegistrationAndeEnrollment(driver);
             CoursesPage(driver);
             CoursesPageEnAr(driver);
-            /*AnEventHasPassed(driver);
-            EventsPage(driver);
+            AnEventHasPassed(driver);
+            /*EventsPage(driver);
             if (driver.Url.Contains("https://campus.gov.il/"))
             {
                 AssimilationOrganization(driver);
@@ -1843,9 +1843,17 @@ namespace Campus
             string url_bgImage = driver.FindElement(By.ClassName("academic-course-image")).GetCssValue("background-image");
             string bgImage = url_bgImage.Replace("url(", "").Replace(")", "");
             if (bgImage != "about:invalid")
+            {
                 Console.WriteLine("success! event producer logo");
+                success++;
+            }
+
             else
+            {
                 Console.WriteLine("fail! don't event producer logo");
+                failed++;
+            }
+
         }
 
         private static void ImageInBanner(IWebDriver driver)
@@ -1853,45 +1861,85 @@ namespace Campus
             String url_bgImage = driver.FindElement(By.CssSelector("div[class='banner-image about-course gray-part d-none d-lg-inline-block']")).GetCssValue("background-image");
             string bgImage = url_bgImage.Replace("url(", "").Replace(")", "");
             if (bgImage != "about:invalid")
+            {
                 Console.WriteLine("success! have image in banner");
+                success++;
+            }
+
             else
+            {
                 Console.WriteLine("fail! don't have image in banner");
+                failed++;
+            }
+
         }
 
         private static void TitleInBanner(IWebDriver driver, string class_title)
         {
             string title = driver.FindElement(By.ClassName(class_title)).Text;
             if (title != "")
+            {
                 Console.WriteLine("success! have title in banner");
+                success++;
+            }
+
             else
+            {
                 Console.WriteLine("fail! don't have title in banner");
+                failed++;
+            }
+
         }
 
         private static void SubtitleInBanner(IWebDriver driver)
         {
             string subtitle = driver.FindElement(By.ClassName("excerpt-course")).Text;
             if (subtitle != "")
+            {
                 Console.WriteLine("success! have subtitle in banner");
+                success++;
+            }
+
             else
+            {
                 Console.WriteLine("fail! don't have subtitle in banner");
+                failed++;
+            }
+
         }
 
         private static void PriceInBottomOfBanner(IWebDriver driver)
         {
             string price = driver.FindElement(By.ClassName("price-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
             if (price == "חינם")
+            {
                 Console.WriteLine("success! price : free");
+                success++;
+            }
+
             else
+            {
                 Console.WriteLine("fail! price isn't free");
+                failed++;
+            }
+
         }
 
         private static void DateInBottomOfBanner(IWebDriver driver)
         {
             string price = driver.FindElement(By.ClassName("start-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
             if (price == "האירוע עבר")
+            {
                 Console.WriteLine("success! the event has passed");
+                success++;
+            }
+
             else
+            {
                 Console.WriteLine("fail! the event didn't passed");
+                failed++;
+            }
+
         }
 
         private static void SharingComponent(IWebDriver driver)
@@ -1905,14 +1953,26 @@ namespace Campus
                 {
 
                     if (link.GetAttribute("href").Contains("live-prof-david-passig"))
+                    {
                         Console.WriteLine("success! have links in sharing component");
+                        success++;
+                    }
+
                     else
+                    {
                         Console.WriteLine("fail! have links in sharing component");
+                        failed++;
+                    }
+
 
                 }
             }
             else
+            {
                 Console.WriteLine("fail! don't have a sharing component");
+                failed++;
+            }
+
 
         }
 
@@ -1920,9 +1980,17 @@ namespace Campus
         {
             int count = driver.FindElements(By.ClassName("single-lecturer")).Count;
             if (count > 0)
+            {
                 Console.WriteLine("success! there is at least one participant");
+                success++;
+            }
+
             else
+            {
                 Console.WriteLine("fail!There isn't at least one participant");
+                failed++;
+            }
+
         }
 
         private static void PopupsInParticipants(IWebDriver driver)
@@ -1934,13 +2002,25 @@ namespace Campus
                     driver.FindElement(By.CssSelector("div[class='img-lecturer-popup circle-image-lecturer']")).GetCssValue("background-image").Replace("url(", "").Replace(")", "") != "about:invalid" &
                     driver.FindElement(By.ClassName("lecturer-content")).Text != "" &
                     driver.FindElement(By.ClassName("lecturer-title-popup")).Text != "")
+                {
                     Console.WriteLine("success! Popup about participant apear with image & text");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! Popup about participant don't apear with image & text");
+                    failed++;
+                }
+
 
             }
             else
+            {
                 Console.WriteLine("fail! Popup about participant don't apear");
+                failed++;
+            }
+
 
         }
 
