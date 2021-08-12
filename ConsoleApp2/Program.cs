@@ -299,20 +299,20 @@ namespace Campus
             if (ChangeLanguageEn(driver, "Blen Page")) success++; else failed++;
             if (ChangeLanguageAr(driver, "Blen Page")) success++; else failed++;
             if (ChangeLanguageHe(driver, "Blen Page")) success++; else failed++;
-            if (TitleInBannerById(driver, "hybrid_banner_h1")) success++; else failed++;
+            TitleInBannerById(driver, "hybrid_banner_h1");
             MoreInfo(driver);
-            if (BlendPageRegistrationButton(driver)) success++; else failed++;
-            if (associationButton(driver)) success++; else failed++;
-            if (institutionButton(driver)) success++; else failed++;
+            BlendPageRegistrationButton(driver);
+            associationButton(driver);
+            institutionButton(driver);
             if (AboutLecturer(driver)) success++; else failed++;
-            if (MoreCourses(driver)) success++; else failed++;
+            MoreCourses(driver);
             if (ButtonForCourse(driver, url)) success++; else failed++;
-            if (BlenMoreInfo(driver, url)) success++; else failed++;
+            BlenMoreInfo(driver, url);
             if (NavigateCoursesPage(driver, url)) success++; else failed++;
             if (NavigatesEventsPage(driver, url)) success++; else failed++;
             if (NavigatesAboutPage(driver, url)) success++; else failed++;
             if (NavigatesSupportPage(driver, url)) success++; else failed++;
-            if (ChatBotAvatar(driver, url)) success++; else failed++;
+            ChatBotAvatar(driver, url);
         }
 
         private static void associationPageTests(IWebDriver driver)
@@ -735,39 +735,50 @@ namespace Campus
 
         }
 
-        private static bool TitleInBannerById(IWebDriver driver, string id_title)
+        private static void TitleInBannerById(IWebDriver driver, string id_title)
         {
             try
             {
                 string title = driver.FindElement(By.Id(id_title)).Text;
                 if (title != "")
+                {
                     Console.WriteLine("success! have title in banner");
+                    success++;
+                }
+
                 else
                 {
                     Console.WriteLine("fail! don't have title in banner");
-                    return false;
+                    failed++;
                 }
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! Title In Banner By Id " + e.Message);
-                return true;
+                failed++;
             }
 
         }
 
 
-        private static bool BlendPageRegistrationButton(IWebDriver driver)
+        private static void BlendPageRegistrationButton(IWebDriver driver)
         {
             driver.Url = URL + "h_course/tester/";
             try
             {
                 IWebElement a = driver.FindElement(By.Id("hybrid_banner_btn"));
                 if (a.Text == "הרשמה לcampusIL")
+                {
                     Console.WriteLine("success! registration button have the correct text");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! registration button  doesn't have the correct text");
+                    failed++;
+                }
+
 
                 a.Click();
                 var browserTabs = driver.WindowHandles;
@@ -777,27 +788,28 @@ namespace Campus
                 if (driver.Title.Contains("היכנס או צור חשבון"))
                 {
                     Console.WriteLine("success! button registration send user to registration page");
+                    success++;
                 }
                 else
                 {
-                    Console.WriteLine("registration button doesn't send to registration page");
-                    return false;
+                    Console.WriteLine("fail! registration button doesn't send to registration page");
+                    failed++;
                 }
 
                 //close tab and get back
                 driver.Close();
                 driver.SwitchTo().Window(browserTabs[0]);
-                return true;
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! BlendPageRegistrationButton" + e.Message);
-                return false;
+                failed++;
             }
 
         }
 
-        private static bool associationButton(IWebDriver driver)
+        private static void associationButton(IWebDriver driver)
         {
             try
             {
@@ -807,25 +819,25 @@ namespace Campus
                 if (driver.Title.Contains("משרד החינוך"))
                 {
                     Console.WriteLine("success! association button send to association page");
+                    success++;
                 }
                 //close tab and get back
                 else
                 {
-                    Console.WriteLine("association button doesn't send to association page");
-                    return false;
+                    Console.WriteLine("fail! association button doesn't send to association page");
+                    failed++;
                 }
-                return true;
 
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! association Button" + e.Message);
-                return false;
+                failed++;
             }
 
         }
 
-        private static bool institutionButton(IWebDriver driver)
+        private static void institutionButton(IWebDriver driver)
         {
             driver.Url = URL + "h_course/tester/";
             try
@@ -834,20 +846,23 @@ namespace Campus
                 a.Click();
 
                 if (driver.Title.Contains("אוניברסיטת חיפה"))
+                {
                     Console.WriteLine("success! Institution button send to institution page");
+                    success++;
+                }
+
 
                 else
                 {
                     Console.WriteLine("fail! Institution button doesn't send to institution page");
-                    return false;
+                    failed++;
                 }
-                return true;
 
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! institutionButton " + e.Message);
-                return false;
+                failed++;
             }
 
         }
@@ -873,7 +888,7 @@ namespace Campus
 
         }
 
-        private static bool MoreCourses(IWebDriver driver)
+        private static void MoreCourses(IWebDriver driver)
         {
             try
             {
@@ -882,18 +897,18 @@ namespace Campus
                 if (driver.Title.Contains("משרד החינוך"))
                 {
                     Console.WriteLine("success! The More Courses button takes to the Assimilation Body page");
+                    success++;
                 }
                 else
                 {
                     Console.WriteLine("fail! The More Courses button doesn't take to the Assimilation Body page");
-                    return false;
+                    failed++;
                 }
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! MoreCourses" + e.Message);
-                return false;
+                failed++;
             }
 
         }
@@ -916,7 +931,7 @@ namespace Campus
 
         }
 
-        private static bool BlenMoreInfo(IWebDriver driver, string url)
+        private static void BlenMoreInfo(IWebDriver driver, string url)
         {
             try
             {
@@ -929,16 +944,19 @@ namespace Campus
                 Console.WriteLine("success! get end date " + wrap_info.FindElement(By.XPath("//span[@class='end info-course-list-bold']/./following-sibling::span")).Text);
                 Console.WriteLine("success! get price " + wrap_info.FindElement(By.XPath("//span[@class='price info-course-list-bold']/./following-sibling::span")).Text);
                 Console.WriteLine("success! get language " + wrap_info.FindElement(By.XPath("//span[@class='language info-course-list-bold']/./following-sibling::span")).Text);
+                success = success + 7;
                 var info_langs_spans = wrap_info.FindElements(By.ClassName("info_lang_span"));
                 foreach (var item in info_langs_spans)
+                {
                     Console.WriteLine("success! get subtitle_lang " + item.Text);
+                    success++;
+                }
 
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! BlenMoreInfo " + e.Message);
-                return false;
+                failed++;
             }
 
 
@@ -1049,7 +1067,7 @@ namespace Campus
             }
         }
 
-        private static bool ChatBotAvatar(IWebDriver driver, string url)
+        private static void ChatBotAvatar(IWebDriver driver, string url)
         {
             try
             {
@@ -1058,20 +1076,23 @@ namespace Campus
                 Thread.Sleep(50);
                 IWebElement a = driver.FindElement(By.CssSelector("iframe[id='ChatBotFrame']"));
                 if (a.Displayed)
+                {
                     Console.WriteLine("success to open chat with campus!");
+                    success++;
+                }
+
                 else
                 {
                     Console.WriteLine("fail to open chat with campus :(");
-                    return false;
+                    failed++;
                 }
-                return true;
 
             }
             catch (Exception e)
             {
 
                 Console.WriteLine("fail! ChatBotAvatar " + e.Message);
-                return false;
+                failed++;
             }
 
         }
@@ -1359,7 +1380,7 @@ namespace Campus
 
                 else
                 {
-                    Console.WriteLine("registration button doesn't send to registration page");
+                    Console.WriteLine("fail! registration button doesn't send to registration page");
                     failed++;
                 }
 
