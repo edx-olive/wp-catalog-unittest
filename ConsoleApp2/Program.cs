@@ -33,12 +33,12 @@ namespace Campus
             IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            if (CloseFirstPopup(driver)) success++; else failed++;
-            if (Pagehome(driver)) success++; else failed++;
+            CloseFirstPopup(driver);
+            Pagehome(driver);
             if (PagesAcademicInstitution(driver)) success++; else failed++;
             FloorLearningObjectives(driver);
-            if (CoursesSection(driver)) success++; else failed++;
-            if (PagesCampusSchool(driver)) success++; else failed++;
+            CoursesSection(driver);
+            PagesCampusSchool(driver);
             BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
             {
@@ -69,21 +69,21 @@ namespace Campus
         }
 
         //messions functions
-        private static bool CloseFirstPopup(IWebDriver driver)
+        private static void CloseFirstPopup(IWebDriver driver)
         {
             try
             {
                 driver.FindElements(By.CssSelector("[class='close-popup-course-button last-popup-element first-popup-element close-popup-button']"))[1].Click();
-                return true;
+                success++;
             }
             catch (Exception)
             {
                 Console.WriteLine("fail or impossible! doesn't have popup event in front");
-                return false;
+                failed++;
             }
         }
 
-        private static bool Pagehome(IWebDriver driver)
+        private static void Pagehome(IWebDriver driver)
         {
             var class_floors = new List<string>() { "banner-wrapper", "academic-institution", "category-section", "courses-section", "faq-section", "testimonials-slider-section" };
             int existing_floors = 0, non_existing_floors = 0;
@@ -105,12 +105,12 @@ namespace Campus
             if (non_existing_floors == 0)
             {
                 Console.WriteLine("success! Home Page have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
-                return true;
+                success++;
             }
             else
             {
                 Console.WriteLine("fail! Home Page have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
-                return false;
+                failed++;
             }
 
         }
@@ -207,7 +207,7 @@ namespace Campus
 
         }
 
-        private static bool PagesCampusSchool(IWebDriver driver)
+        private static void PagesCampusSchool(IWebDriver driver)
         {
             driver.Url = URL;
             Thread.Sleep(1000);
@@ -226,8 +226,9 @@ namespace Campus
                     if (driver.Title.Contains("קורסים"))
                     {
                         Console.WriteLine("success! course page");
+                        success++;
                         //בודק אם מספר הקורסים המוצג בכותרת שווה לכמות הקורסים המוצגים
-                        if (CountCourse(driver)) success++; else failed++;
+                        CountCourse(driver);
                         // בודק אם יש אפשרות של סינון שפה -> אם כן אז שולף את השפה ובודק תקינות סינון של השפה שנבחרה
                         LanguagesOptions(driver);
                         if (ChangeLanguageEn(driver, "Courses Page")) success++; else failed++;
@@ -238,21 +239,20 @@ namespace Campus
                     else
                     {
                         Console.WriteLine("fail! title isn't match " + driver.Title);
-                        return false;
+                        failed++;
                     }
 
                     driver.Url = URL;
                 }
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! Pages Campus School " + e.Message);
-                return false;
+                failed++;
             }
         }
 
-        private static bool CoursesSection(IWebDriver driver)
+        private static void CoursesSection(IWebDriver driver)
         {
             Thread.Sleep(20);
             Console.WriteLine("go to Courses Section");
@@ -265,22 +265,25 @@ namespace Campus
                     course_link.Click();
                     Thread.Sleep(100);
                     if (driver.Title.Contains(course_title))
+                    {
                         Console.WriteLine("success! go to course");
+                        success++;
+                    }
+
 
                     else
                     {
                         Console.WriteLine("fail! go to course");
-                        return false;
+                        failed++;
                     }
                     driver.Url = URL;
                 }
 
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! Courses Section " + e.Message);
-                return false;
+                failed++;
             }
         }
 
@@ -575,7 +578,7 @@ namespace Campus
             return true;
         }
 
-        private static bool CountCourse(IWebDriver driver)
+        private static void CountCourse(IWebDriver driver)
         {
             try
             {
@@ -584,18 +587,18 @@ namespace Campus
                 if (sum_course_title == sum_list_course)
                 {
                     Console.WriteLine("success! the amount of courses is compatible ");
+                    success++;
                 }
                 else
                 {
-                    Console.WriteLine(sum_course_title + " != " + sum_list_course + " :( ");
-                    return false;
+                    Console.WriteLine("fail! " + sum_course_title + " != " + sum_list_course + " :( ");
+                    failed++;
                 }
-                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! Count Course " + e.Message);
-                return false;
+                failed++;
             }
 
         }
@@ -618,25 +621,27 @@ namespace Campus
                     {
                         case "language_111":
                             {
-                                if (CheckChoosingLanguageOfPosts(driver, "Arabic", "language_111", "language_111")) success++; else failed++; ;
+                                CheckChoosingLanguageOfPosts(driver, "Arabic", "language_111", "language_111");
                                 break;
                             }
 
                         case "language_110":
                             {
-                                if (CheckChoosingLanguageOfPosts(driver, "English", "language_110", "language_110")) success++; else failed++;
+                                CheckChoosingLanguageOfPosts(driver, "English", "language_110", "language_110");
                                 break;
                             }
 
                         case "language_109":
                             {
-                                if (CheckChoosingLanguageOfPosts(driver, "Hebrew", "language_109", "language_109")) success++; else failed++;
+                                CheckChoosingLanguageOfPosts(driver, "Hebrew", "language_109", "language_109");
                                 break;
                             }
 
                         default:
                             {
-                                Console.WriteLine("fail! language of posts"); break;
+                                Console.WriteLine("fail! language of posts");
+                                failed++;
+                                break;
                             }
                     }
                 }
@@ -644,10 +649,11 @@ namespace Campus
             catch
             {
                 Console.WriteLine("fail or impossible! do not have option of language in posts");
+                failed++;
             }
         }
 
-        private static bool CheckChoosingLanguageOfPosts(IWebDriver driver, string language, string label_language, string input_language)
+        private static void CheckChoosingLanguageOfPosts(IWebDriver driver, string language, string label_language, string input_language)
         {
             try
             {
@@ -662,21 +668,22 @@ namespace Campus
                 if (sum == sum_course_title)
                 {
                     Console.WriteLine("success! show all " + language + " posts");
+                    success++;
                 }
                 else
                 {
                     Console.WriteLine("fail! not show all " + language + " posts :( ");
-                    return false;
+                    failed++;
                 }
                 ////click on checkbox language to unchecked
                 jse.ExecuteScript("arguments[0].click();", input);
 
-                return true;
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! Check Choosing Language Of Posts " + e.Message);
-                return false;
+                failed++;
             }
         }
 
@@ -2566,6 +2573,7 @@ namespace Campus
             catch (Exception)
             {
                 Console.WriteLine("fail! class " + classNameFloor + " not exists.");
+                failed++;
                 return false;
             }
 
@@ -2581,6 +2589,7 @@ namespace Campus
             catch (Exception)
             {
                 Console.WriteLine("fail! id " + idFloor + " not exists.");
+                failed++;
                 return false;
             }
         }
