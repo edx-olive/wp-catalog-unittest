@@ -34,7 +34,7 @@ namespace Campus
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
             CloseFirstPopup(driver);
-            Pagehome(driver);
+            Pagehome(driver); 
             PagesAcademicInstitution(driver);
             FloorLearningObjectives(driver);
             CoursesSection(driver);
@@ -43,10 +43,12 @@ namespace Campus
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
             {
                 associationPageTests(driver);
+
             }
             else
             {
                 Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
+                failed++;
             }
             CoursePage(driver);
             RegistrationAndeEnrollment(driver);
@@ -1169,7 +1171,7 @@ namespace Campus
             {
                 IWebElement play_video = driver.FindElement(By.CssSelector("div[class='banner-image about-course gray-part d-none d-lg-inline-block']")).FindElement(By.TagName("a"));
                 play_video?.Click();
-                Thread.Sleep(500);
+                Thread.Sleep(550);
                 string opacity = driver.FindElement(By.Id("popup_overlay_2020")).GetCssValue("opacity");
                 if (opacity == "1")
                 {
@@ -1681,16 +1683,16 @@ namespace Campus
                 IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
                 jse.ExecuteScript("arguments[0].click();", input);
 
-                Thread.Sleep(800);
+                Thread.Sleep(900);
                 driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
 
-                Thread.Sleep(20000);
+                Thread.Sleep(40000);
                 try
                 {
                     while (driver.FindElement(By.Id("course_load_more")).Displayed)
                     {
                         driver.FindElement(By.Id("course_load_more")).Click();
-                        Thread.Sleep(600);
+                        Thread.Sleep(700);
                     }
                 }
                 catch (Exception e)
@@ -2203,7 +2205,7 @@ namespace Campus
                 }
                 else
                 {
-                    Console.WriteLine("impossible! don't have futer events");
+                    Console.WriteLine("fail impossible! don't have futer events");
                     failed++;
                 }
 
