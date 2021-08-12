@@ -35,7 +35,7 @@ namespace Campus
             driver.Navigate().GoToUrl(URL);
             CloseFirstPopup(driver);
             Pagehome(driver);
-            if (PagesAcademicInstitution(driver)) success++; else failed++;
+            PagesAcademicInstitution(driver);
             FloorLearningObjectives(driver);
             CoursesSection(driver);
             PagesCampusSchool(driver);
@@ -115,7 +115,7 @@ namespace Campus
 
         }
 
-        private static bool PagesAcademicInstitution(IWebDriver driver)
+        private static void PagesAcademicInstitution(IWebDriver driver)
         {
             for (int i = 0; i < 2; i++)
             {
@@ -130,6 +130,7 @@ namespace Campus
                     if (driver.Title.Contains(title_page))
                     {
                         Console.WriteLine("success! in Academic Institutions: " + title_page + " page");
+                        success++;
 
                         var languages = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElements(By.TagName("a"));
                         List<string> links = new List<string>(); List<string> titles = new List<string>();
@@ -173,19 +174,22 @@ namespace Campus
                     }
 
                     else
+                    {
                         Console.WriteLine("fail! Institution page: " + title_page + " was not found.");
+                        failed++;
+                    }
+
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("fail! " + e.Message);
-                    return false;
+                    failed++;
                 }
 
                 IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
                 go_back?.Click();
                 Thread.Sleep(500);
             }
-            return true;
 
         }
 
@@ -690,6 +694,7 @@ namespace Campus
         private static void PageInstitution(IWebDriver driver, string lang, string language_page)
         {
             Console.WriteLine("success! change language to " + language_page);
+            success++;
             IsAmountOfCoursesEqual(driver);
             IsAmountOfLecturersEqual(driver);
             //יבודק אם הקורסים הולכים לאתרים שלהם בשפה הנבחרת
@@ -698,21 +703,36 @@ namespace Campus
 
         private static void GoToCourseInInstatution(IWebDriver driver, string lang_language)
         {
-            for (int i = 0; i < 2; i++)
+            try
             {
-                IWebElement course_link = driver.FindElements(By.ClassName("course-item-details"))[i];
-                string course_title = course_link.FindElement(By.ClassName("course-item-title")).Text;
-                course_link?.Click();
-
-                string current_language = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
-                if (current_language == lang_language && driver.Title.Contains(course_title))
+                for (int i = 0; i < 2; i++)
                 {
-                    Console.WriteLine("success! go to course");
-                    driver.Navigate().Back();
-                }
-                else Console.WriteLine("fail! go to course");
+                    IWebElement course_link = driver.FindElements(By.ClassName("course-item-details"))[i];
+                    string course_title = course_link.FindElement(By.ClassName("course-item-title")).Text;
+                    course_link?.Click();
 
+                    string current_language = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
+                    if (current_language == lang_language && driver.Title.Contains(course_title))
+                    {
+                        Console.WriteLine("success! go to course");
+                        success++;
+                        driver.Navigate().Back();
+                    }
+                    else
+                    {
+                        Console.WriteLine("fail! go to course");
+                        failed++;
+                    }
+
+
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! GoToCourseInInstatution " + e.Message);
+                failed++;
+            }
+
         }
 
         private static bool TitleInBannerById(IWebDriver driver, string id_title)
@@ -2606,30 +2626,52 @@ namespace Campus
 
         private static void IsAmountOfCoursesEqual(IWebDriver driver)
         {
-            int sum = Int16.Parse(driver.FindElement(By.ClassName("found-course-number")).Text);
-            int sum_list_course = driver.FindElements(By.ClassName("item_post_type_course")).Count;
-            if (sum == sum_list_course)
+            try
             {
-                Console.WriteLine("success! courses equal");
+                int sum = Int16.Parse(driver.FindElement(By.ClassName("found-course-number")).Text);
+                int sum_list_course = driver.FindElements(By.ClassName("item_post_type_course")).Count;
+                if (sum == sum_list_course)
+                {
+                    Console.WriteLine("success! courses equal");
+                    success++;
+                }
+                else
+                {
+                    Console.WriteLine("fail! courses not equal");
+                    failed++;
+                }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("fail! courses not equal");
+                Console.WriteLine("fail! IsAmountOfCoursesEqual " + e.Message);
+                failed++;
             }
+
         }
 
         private static void IsAmountOfLecturersEqual(IWebDriver driver)
         {
-            int sum = Int16.Parse(driver.FindElement(By.ClassName("found-lecturer-number")).Text);
-            int sum_list_lecturers = driver.FindElements(By.ClassName("single-lecturer")).Count;
-            if (sum == sum_list_lecturers)
+            try
             {
-                Console.WriteLine("success! lecturers equal");
+                int sum = Int16.Parse(driver.FindElement(By.ClassName("found-lecturer-number")).Text);
+                int sum_list_lecturers = driver.FindElements(By.ClassName("single-lecturer")).Count;
+                if (sum == sum_list_lecturers)
+                {
+                    Console.WriteLine("success! lecturers equal");
+                    success++;
+                }
+                else
+                {
+                    Console.WriteLine("fail! lecturers not equal");
+                    failed++;
+                }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("fail! lecturers not equal");
+                Console.WriteLine("fail! IsAmountOfLecturersEqual " + e.Message);
+                failed++;
             }
+
         }
 
         /*
