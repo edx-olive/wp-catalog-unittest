@@ -965,14 +965,6 @@ namespace Campus
 
         }
 
-        /*private static void Navigates(IWebDriver driver, string url)
-         {
-             NavigateCoursesPage(driver, url);
-             NavigatesEventsPage(driver, url);
-             NavigatesAboutPage(driver, url);
-             NavigatesSupportPage(driver, url);
-         }*/
-
         private static bool NavigateCoursesPage(IWebDriver driver, string url)
         {
             try
@@ -2637,16 +2629,6 @@ namespace Campus
             }
         }
 
-        /*public static void WaitForLoad(IWebDriver driver, int timeoutSec = 15)
-        {
-            //IWait<IWebDriver> wait = new OpenQA.Selenium.Support.UI.WebDriverWait(driver, TimeSpan.FromSeconds(1));
-            //wait.Until(driver1 => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
-            WebDriverWait wait = new WebDriverWait(driver, new TimeSpan(0, 0, timeoutSec));
-            wait.Until(wd => js.ExecuteScript("return document.readyState").ToString() == "complete");
-            Console.WriteLine("finish WaitForLoad");
-        }*/
-
         private static void IsAmountOfCoursesEqual(IWebDriver driver)
         {
             try
@@ -2696,44 +2678,6 @@ namespace Campus
             }
 
         }
-
-        /*
-        private static void SelectLanguage(IWebDriver driver, string page)
-        {
-            Console.WriteLine("success! in " + page + " change languages");
-            var languages = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElements(By.TagName("a"));
-            List<string> links = new List<string>();
-            List<string> titles = new List<string>();
-            foreach (var item in languages)
-            {
-                links.Add(item.GetAttribute("href"));
-                titles.Add(item.GetAttribute("title"));
-            }
-
-            for (int i = links.Count - 1; i >= 0; i--)
-            {
-                driver.Url = links[i].ToString();
-                string lang = driver.FindElement(By.TagName("html")).GetAttribute("lang");
-                if (titles[i] == "עב" && lang == "he-IL")
-                    Console.WriteLine("success! change language to hebrew");
-
-                else
-                {
-                    if (titles[i] == "العر" && lang == "ar")
-                        Console.WriteLine("success! change language to arabic");
-
-                    else
-                    {
-                        if (titles[i] == "En" && lang == "en-US")
-                            Console.WriteLine("success! change language to En");
-                        else
-                            Console.WriteLine("fail! can not change language");
-
-                    }
-                }
-            }
-        }
-*/
 
         private static bool ChangeLanguageAr(IWebDriver driver, string page)
         {
