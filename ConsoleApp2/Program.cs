@@ -51,9 +51,8 @@ namespace Campus
             CoursePage(driver);
             RegistrationAndeEnrollment(driver);
             CoursesPage(driver);
-            /*if (CoursesPageEnAr(driver)) success++; else failed++;
-            
-            AnEventHasPassed(driver);
+            CoursesPageEnAr(driver);
+            /*AnEventHasPassed(driver);
             EventsPage(driver);
             if (driver.Url.Contains("https://campus.gov.il/"))
             {
@@ -366,22 +365,21 @@ namespace Campus
             //אותם בדיקות לאתר הנוכחי באנגלית + ערבית
         }
 
-        private static bool CoursesPageEnAr(IWebDriver driver)
+        private static void CoursesPageEnAr(IWebDriver driver)
         {
-            NavigateCoursesPage(driver, URL);
+            if (NavigateCoursesPage(driver, URL)) success++; else failed++;
 
-            ChangeLanguageEn(driver, "Courses Page");
+            if (ChangeLanguageEn(driver, "Courses Page")) success++; else failed++;
             FilterByInstitutionEnAr(driver, "institution_1362");
             FilterByWhatIsInterestingEnAr(driver, "areas_of_knowledge_887");
             FilterByTechEnAr(driver, "subject_937");
             FilterByLanguageEnAr(driver, "language_29");
 
-            ChangeLanguageAr(driver, "Courses Page");
+            if (ChangeLanguageAr(driver, "Courses Page")) success++; else failed++;
             FilterByInstitutionEnAr(driver, "institution_4730");
             FilterByWhatIsInterestingEnAr(driver, "areas_of_knowledge_884");
             FilterByTechEnAr(driver, "subject_1029");
             FilterByLanguageEnAr(driver, "language_401");
-            return true;
         }
 
         private static void AnEventHasPassed(IWebDriver driver)
@@ -1740,6 +1738,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByInstitutionEnAr " + e.Message);
+                failed++;
             }
 
 
@@ -1761,21 +1760,35 @@ namespace Campus
                     }
 
                     Console.WriteLine("success! filtering of " + filter_name);
+                    success++;
                     int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
                     int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
                     if (sum_course_text == sum_course_list)
+                    {
                         Console.WriteLine("success! text sum is equal to courses list");
+                        success++;
+                    }
+
                     else
+                    {
                         Console.WriteLine("fail! text sum is not equal to courses list");
+                        failed++;
+                    }
+
                 }
                 else
+                {
                     Console.WriteLine("fail! can not filtering of " + filter_name);
+                    failed++;
+                }
+
 
                 jse.ExecuteScript("arguments[0].click();", input);
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! FiltersEnAr " + e.Message);
+                failed++;
             }
 
         }
@@ -1790,6 +1803,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByWhatIsInterestingEnAr " + e.Message);
+                failed++;
             }
 
         }
@@ -1804,6 +1818,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByTechEnAr " + e.Message);
+                failed++;
             }
 
         }
@@ -1818,6 +1833,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByLanguageEnAr " + e.Message);
+                failed++;
             }
 
         }
