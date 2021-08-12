@@ -42,14 +42,14 @@ namespace Campus
             BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
             {
-                associationPageTests(driver);
+               associationPageTests(driver);
             }
             else
             {
-                Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
+            Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
             }
-            /*if (CoursePage(driver)) success++; else failed++;
-            if (RegistrationAndeEnrollment(driver)) success++; else failed++;
+            CoursePage(driver);
+            /*if (RegistrationAndeEnrollment(driver)) success++; else failed++;
             if (CoursesPage(driver)) success++; else failed++;
             if (CoursesPageEnAr(driver)) success++; else failed++;
             
@@ -293,7 +293,7 @@ namespace Campus
             if (ChangeLanguageAr(driver, "Blen Page")) success++; else failed++;
             if (ChangeLanguageHe(driver, "Blen Page")) success++; else failed++;
             if (TitleInBannerById(driver, "hybrid_banner_h1")) success++; else failed++;
-            if (MoreInfo(driver)) success++; else failed++;
+            MoreInfo(driver);
             if (BlendPageRegistrationButton(driver)) success++; else failed++;
             if (associationButton(driver)) success++; else failed++;
             if (institutionButton(driver)) success++; else failed++;
@@ -319,21 +319,20 @@ namespace Campus
             if (NavigatesSupportPage(driver, url)) success++; else failed++;
         }
 
-        private static bool CoursePage(IWebDriver driver)
+        private static void CoursePage(IWebDriver driver)
         {
             driver.Url = URL + "course/course-v1-mse-gov_psychometry/";
             Console.WriteLine("go to course page");
             CourseLecturer(driver);
-            PlayVideo(driver);
+            if (PlayVideo(driver)) success++; else failed++;
             MoreInfo(driver);
-            FloodedPosters(driver);
+            if (FloodedPosters(driver)) success++; else failed++;
 
-            ChangeLanguageEn(driver, "Course Page");
-            ChangeLanguageAr(driver, "Course Page");
-            ChangeLanguageHe(driver, "Course Page");
+            if (ChangeLanguageEn(driver, "Course Page")) success++; else failed++;
+            if (ChangeLanguageAr(driver, "Course Page")) success++; else failed++;
+            if (ChangeLanguageHe(driver, "Course Page")) success++; else failed++;
 
             CoursePageRegistrationButton(driver);
-            return true;
         }
 
         private static bool RegistrationAndeEnrollment(IWebDriver driver)
@@ -922,13 +921,13 @@ namespace Campus
 
         }
 
-       /*private static void Navigates(IWebDriver driver, string url)
-        {
-            NavigateCoursesPage(driver, url);
-            NavigatesEventsPage(driver, url);
-            NavigatesAboutPage(driver, url);
-            NavigatesSupportPage(driver, url);
-        }*/
+        /*private static void Navigates(IWebDriver driver, string url)
+         {
+             NavigateCoursesPage(driver, url);
+             NavigatesEventsPage(driver, url);
+             NavigatesAboutPage(driver, url);
+             NavigatesSupportPage(driver, url);
+         }*/
 
         private static bool NavigateCoursesPage(IWebDriver driver, string url)
         {
@@ -1059,9 +1058,17 @@ namespace Campus
             {
                 IWebElement a = driver.FindElement(By.CssSelector("a[class='signup-course-button con_to_course ']"));
                 if (a.Text == "הרשמה לcampusIL")
+                {
                     Console.WriteLine("success! registration button have the correct text");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! registration button  doesn't have the correct text");
+                    failed++;
+                }
+
 
                 a.Click();
                 var browserTabs = driver.WindowHandles;
@@ -1071,9 +1078,14 @@ namespace Campus
                 if (driver.Title.Contains("היכנס או צור חשבון"))
                 {
                     Console.WriteLine("success! button registration send user to registration page in course page");
+                    success++;
                 }
                 else
-                    Console.WriteLine("registration button doesn't send to registration page in course page");
+                {
+                    Console.WriteLine("fail! registration button doesn't send to registration page in course page");
+                    failed++;
+                }
+
                 //close tab and get back
                 driver.Close();
                 driver.SwitchTo().Window(browserTabs[0]);
@@ -1081,6 +1093,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! CoursePageRegistrationButton " + e.Message);
+                failed++;
             }
 
         }
@@ -1090,14 +1103,22 @@ namespace Campus
 
             int count_lecturer = driver.FindElements(By.ClassName("content-lecturer")).Count;
             if (count_lecturer == 0)
+            {
                 Console.WriteLine("fail! Course Lecturer. class name:content-lecturer does not exists");
+                failed++;
+            }
+
 
             else
+            {
                 Console.WriteLine("success! count lecturers " + count_lecturer);
+                success++;
+            }
+
 
         }
 
-        private static void PlayVideo(IWebDriver driver)
+        private static bool PlayVideo(IWebDriver driver)
         {
             try
             {
@@ -1106,39 +1127,55 @@ namespace Campus
                 Thread.Sleep(500);
                 string opacity = driver.FindElement(By.Id("popup_overlay_2020")).GetCssValue("opacity");
                 if (opacity == "1")
+                {
                     Console.WriteLine("success! play course video");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! can not play course video");
+                    return false;
+                }
 
                 IWebElement close_video = driver.FindElement(By.ClassName("close-popup-button-2020"));
                 close_video?.Click();
                 Console.WriteLine("success! close play course video");
+
+                return true;
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! PlayVideo " + e.Message);
+                return false;
             }
 
         }
 
-        private static bool MoreInfo(IWebDriver driver)
+        private static void MoreInfo(IWebDriver driver)
         {
-            int flag = 0;
+
             try
             {
                 string start_date = driver.FindElement(By.ClassName("start-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
                 Console.WriteLine("start date: " + start_date);
                 if (start_date != "")
+                {
                     Console.WriteLine("success! get start date");
+                    success++;
+                }
+
                 else
                 {
                     Console.WriteLine("fail! can not get start date");
+                    failed++;
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! MoreInfo start_date " + e.Message);
-                flag = 1;
+                failed++;
+
             }
 
             try
@@ -1146,16 +1183,22 @@ namespace Campus
                 string price = driver.FindElement(By.ClassName("price-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
                 Console.WriteLine("price: " + price);
                 if (price != "")
+                {
                     Console.WriteLine("success! get price");
+                    success++;
+                }
+
                 else
                 {
                     Console.WriteLine("fail! can not get price");
+                    failed++;
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! MoreInfo price " + e.Message);
-                flag = 1;
+                failed++;
+
             }
 
             try
@@ -1163,41 +1206,61 @@ namespace Campus
                 string duration_of_course = driver.FindElement(By.ClassName("duration-bar-info")).FindElement(By.ClassName("text-bar-course")).Text;
                 Console.WriteLine("duration of course: " + duration_of_course);
                 if (duration_of_course != "")
+                {
                     Console.WriteLine("success! get duration of the course");
+                    success++;
+                }
+
                 else
                 {
                     Console.WriteLine("fail! can not get duration of the course");
+                    failed++;
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! MoreInfo duration_of_course " + e.Message);
-                flag = 1;
-            }
-            return (flag == 1) ? false : true;
+                failed++;
 
+            }
         }
 
-        private static void FloodedPosters(IWebDriver driver)
+        private static bool FloodedPosters(IWebDriver driver)
         {
             var posts = driver.FindElements(By.ClassName("course-item-title"));
+            int flag = 0;
             if (posts.Count == 4)
             {
                 Console.WriteLine("success! 4 flooded posters");
+                success++;
                 for (int i = 0; i < posts.Count; i++)
                 {
                     string current_poster = posts[i].Text;
                     for (int j = i + 1; j < posts.Count; j++)
                     {
                         if (current_poster == posts[j].Text)
-                            Console.WriteLine("fail! have two of the same post");
-                        else
-                            Console.WriteLine("success! there are different posts");
+                        {
+                            flag = 1;
+                        }
                     }
+                }
+                if (flag == 1)
+                {
+                    Console.WriteLine("fail! have two of the same post");
+                    return false;
+                }
+                else
+                {
+                    Console.WriteLine("success! there are different posts");
+                    return true;
                 }
             }
             else
-                Console.WriteLine("fail! do not have flooded posters or class name does not exists");
+            {
+                Console.WriteLine("fail! do not have flooded posters or class name: course-item-title does not exists");
+                return false;
+            }
+
 
         }
 
