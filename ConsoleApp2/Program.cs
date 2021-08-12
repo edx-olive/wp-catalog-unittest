@@ -40,17 +40,15 @@ namespace Campus
             if (CoursesSection(driver)) success++; else failed++;
             if (PagesCampusSchool(driver)) success++; else failed++;
             BlenPageTests(driver);
-            /*
-            if (driver.Url.Contains("https://stage.campus.gov.il/") && associationPageTests(driver))
+            if (driver.Url.Contains("https://stage.campus.gov.il/"))
             {
-                success++;
+                associationPageTests(driver);
             }
             else
             {
-                failed++;
                 Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
             }
-            if (CoursePage(driver)) success++; else failed++;
+            /*if (CoursePage(driver)) success++; else failed++;
             if (RegistrationAndeEnrollment(driver)) success++; else failed++;
             if (CoursesPage(driver)) success++; else failed++;
             if (CoursesPageEnAr(driver)) success++; else failed++;
@@ -310,13 +308,15 @@ namespace Campus
             if (ChatBotAvatar(driver, url)) success++; else failed++;
         }
 
-        private static bool associationPageTests(IWebDriver driver)
+        private static void associationPageTests(IWebDriver driver)
         {
             string url = URL + "hybrid_institution/tester/";
             Console.WriteLine("go to Association Page");
-            ButtonForCourse(driver, url);
-            Navigates(driver, url);
-            return true;
+            if (ButtonForCourse(driver, url)) success++; else failed++;
+            if (NavigateCoursesPage(driver, url)) success++; else failed++;
+            if (NavigatesEventsPage(driver, url)) success++; else failed++;
+            if (NavigatesAboutPage(driver, url)) success++; else failed++;
+            if (NavigatesSupportPage(driver, url)) success++; else failed++;
         }
 
         private static bool CoursePage(IWebDriver driver)
@@ -922,13 +922,13 @@ namespace Campus
 
         }
 
-        private static void Navigates(IWebDriver driver, string url)
+       /*private static void Navigates(IWebDriver driver, string url)
         {
             NavigateCoursesPage(driver, url);
             NavigatesEventsPage(driver, url);
             NavigatesAboutPage(driver, url);
             NavigatesSupportPage(driver, url);
-        }
+        }*/
 
         private static bool NavigateCoursesPage(IWebDriver driver, string url)
         {
