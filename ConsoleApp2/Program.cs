@@ -50,8 +50,8 @@ namespace Campus
             }
             CoursePage(driver);
             RegistrationAndeEnrollment(driver);
-            /*if (CoursesPage(driver)) success++; else failed++;
-            if (CoursesPageEnAr(driver)) success++; else failed++;
+            CoursesPage(driver);
+            /*if (CoursesPageEnAr(driver)) success++; else failed++;
             
             AnEventHasPassed(driver);
             EventsPage(driver);
@@ -355,16 +355,15 @@ namespace Campus
             ToBlendCoursePage(driver);
         }
 
-        private static bool CoursesPage(IWebDriver driver)
+        private static void CoursesPage(IWebDriver driver)
         {
             Console.WriteLine("go to courses page");
-            NavigateCoursesPage(driver, URL);
+            if (NavigateCoursesPage(driver, URL)) success++; else failed++;
             FilterByInstitution(driver);
             FilterByWhatIsInteresting(driver);
             FilterByTech(driver);
             FilterByLanguage(driver);
             //אותם בדיקות לאתר הנוכחי באנגלית + ערבית
-            return true;
         }
 
         private static bool CoursesPageEnAr(IWebDriver driver)
@@ -1623,6 +1622,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByInstitution " + e.Message);
+                failed++;
             }
         }
 
@@ -1637,34 +1637,46 @@ namespace Campus
                 Thread.Sleep(800);
                 driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
 
-                Thread.Sleep(10000);
+                Thread.Sleep(20000);
                 try
                 {
                     while (driver.FindElement(By.Id("course_load_more")).Displayed)
                     {
                         driver.FindElement(By.Id("course_load_more")).Click();
-                        Thread.Sleep(500);
+                        Thread.Sleep(600);
                     }
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine("fail! click on load more button " + e.Message);
+                    failed++;
                 }
 
 
                 Console.WriteLine("success! filtering of " + filter_name);
+                success++;
+
                 int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
                 int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
                 if (sum_course_text == sum_course_list)
+                {
                     Console.WriteLine("success! text sum is equal to courses list");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! text sum is not equal to courses list");
+                    failed++;
+                }
+
 
                 jse.ExecuteScript("arguments[0].click();", input);
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! filter" + e.Message);
+                Console.WriteLine("fail! filter " + e.Message);
+                failed++;
             }
 
 
@@ -1680,6 +1692,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByWhatIsInteresting " + e.Message);
+                failed++;
             }
 
         }
@@ -1694,6 +1707,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByTech " + e.Message);
+                failed++;
             }
 
         }
@@ -1708,6 +1722,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! FilterByLanguage " + e.Message);
+                failed++;
             }
 
         }
