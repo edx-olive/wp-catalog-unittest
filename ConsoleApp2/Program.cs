@@ -53,8 +53,8 @@ namespace Campus
             CoursesPage(driver);
             CoursesPageEnAr(driver);
             AnEventHasPassed(driver);
-            /*EventsPage(driver);
-            if (driver.Url.Contains("https://campus.gov.il/"))
+            EventsPage(driver);
+            /*if (driver.Url.Contains("https://campus.gov.il/"))
             {
                 AssimilationOrganization(driver);
             }
@@ -406,9 +406,9 @@ namespace Campus
             FilterByMastersInTheLivingRoom(driver);
             PastEvent(driver);
             FutureEvent(driver);
-            ChangeLanguageEn(driver, "events page");
-            ChangeLanguageAr(driver, "events page");
-            ChangeLanguageHe(driver, "events page");
+            if (ChangeLanguageEn(driver, "events page")) success++; else failed++;
+            if (ChangeLanguageAr(driver, "events page")) success++; else failed++;
+            if (ChangeLanguageHe(driver, "events page")) success++; else failed++;
             GoToEventPage(driver);
 
         }
@@ -2102,13 +2102,19 @@ namespace Campus
                     )
                 {
                     Console.WriteLine("success! past event has title & text past & image & icon");
+                    success++;
                 }
                 else
+                {
                     Console.WriteLine("success! past event don't has title & text past & image & icon");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! PastEvent " + e.Message);
+                failed++;
             }
 
 
@@ -2116,100 +2122,185 @@ namespace Campus
 
         private static void FutureEvent(IWebDriver driver)
         {
-            var course_load_more = driver.FindElement(By.Id("course_load_more"));
-
-            while (course_load_more.Displayed)
+            try
             {
-                course_load_more.Click();
-            }
+                var course_load_more = driver.FindElement(By.Id("course_load_more"));
 
-            var label = driver.FindElement(By.CssSelector("label[for='status_future'"));
-            int text_sum = Int16.Parse(label.FindElement(By.ClassName("sum")).Text);
-            if (text_sum != 0)
-            {
-                IWebElement element = driver.FindElement(By.CssSelector("div[data-status=',future,']"));
-                if (element.FindElement(By.ClassName("course-item-title")).Text != "" &
-                    element.FindElement(By.CssSelector("[class='course-item-image has_background_image open-popup-button donthaveyoutube']")).GetCssValue("background-image").Replace("url(", "").Replace(")", "") != "about:invalid" &
-                    element.FindElement(By.TagName("img")).GetAttribute("src") != null
-                    )
+                while (course_load_more.Displayed)
                 {
-                    Console.WriteLine("success! future event has title & text past & image & icon");
+                    course_load_more.Click();
                 }
 
+                var label = driver.FindElement(By.CssSelector("label[for='status_future'"));
+                int text_sum = Int16.Parse(label.FindElement(By.ClassName("sum")).Text);
+                if (text_sum != 0)
+                {
+                    IWebElement element = driver.FindElement(By.CssSelector("div[data-status=',future,']"));
+                    if (element.FindElement(By.ClassName("course-item-title")).Text != "" &
+                        element.FindElement(By.CssSelector("[class='course-item-image has_background_image open-popup-button donthaveyoutube']")).GetCssValue("background-image").Replace("url(", "").Replace(")", "") != "about:invalid" &
+                        element.FindElement(By.TagName("img")).GetAttribute("src") != null
+                        )
+                    {
+                        Console.WriteLine("success! future event has title & text past & image & icon");
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! future event don't has title & text past & image & icon");
+                        failed++;
+                    }
+
+                }
                 else
-                    Console.WriteLine("fail! future event don't has title & text past & image & icon");
+                {
+                    Console.WriteLine("impossible! don't have futer events");
+                    failed++;
+                }
+
             }
-            else
-                Console.WriteLine("impossible! don't have futer events");
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FutureEvent " + e.Message);
+                failed++;
+            }
 
 
         }
 
         private static void CountEvents(IWebDriver driver)
         {
-            var course_load_more = driver.FindElement(By.Id("course_load_more"));
-            while (course_load_more.Displayed)
+            try
             {
-                course_load_more.Click();
-            }
-            Thread.Sleep(300);
-            int count_list_events = driver.FindElements(By.ClassName("item_post_type_event")).Count;
-            int text_count_events = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                var course_load_more = driver.FindElement(By.Id("course_load_more"));
+                while (course_load_more.Displayed)
+                {
+                    course_load_more.Click();
+                }
+                Thread.Sleep(300);
+                int count_list_events = driver.FindElements(By.ClassName("item_post_type_event")).Count;
+                int text_count_events = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
 
-            if (count_list_events == text_count_events)
-                Console.WriteLine("success! Checking the number of events that appear is equal");
-            else
-                Console.WriteLine("fail! Checking the number of events that appear isn't equal");
+                if (count_list_events == text_count_events)
+                {
+                    Console.WriteLine("success! Checking the number of events that appear is equal");
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! Checking the number of events that appear isn't equal");
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! CountEvents " + e.Message);
+                failed++;
+            }
+
 
         }
 
         private static void FilterByPastEvents(IWebDriver driver)
         {
-            var label = driver.FindElement(By.CssSelector("label[for='status_past'"));
-            int text_sum = Int16.Parse(label.FindElement(By.ClassName("sum")).Text);
-            var input = label.FindElement(By.TagName("input"));
-            FilterAutomatic(driver, input, text_sum, "past events");
+            try
+            {
+                var label = driver.FindElement(By.CssSelector("label[for='status_past'"));
+                int text_sum = Int16.Parse(label.FindElement(By.ClassName("sum")).Text);
+                var input = label.FindElement(By.TagName("input"));
+                FilterAutomatic(driver, input, text_sum, "past events");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByPastEvents " + e.Message);
+                failed++;
+            }
+
 
         }
 
         private static void FilterAutomatic(IWebDriver driver, IWebElement input, int text_sum, string filter_name = "")
         {
-            IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
-            jse.ExecuteScript("arguments[0].click();", input);
-
-            while (driver.FindElement(By.Id("course_load_more")).Displayed)
+            try
             {
-                driver.FindElement(By.Id("course_load_more")).Click();
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+
+                while (driver.FindElement(By.Id("~course_load_more")).Displayed)
+                {
+                    driver.FindElement(By.Id("course_load_more")).Click();
+                }
+
+                int text_count_events = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                if (text_sum == text_count_events)
+                {
+                    Console.WriteLine("success! filtering of " + filter_name);
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! can't filtering of " + filter_name);
+                    failed++;
+                }
+
+
+                jse.ExecuteScript("arguments[0].click();", input);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterAutomatic " + e.Message);
+                failed++;
             }
 
-            int text_count_events = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
-            if (text_sum == text_count_events)
-                Console.WriteLine("success! filtering of " + filter_name);
-            else
-                Console.WriteLine("fail! can't filtering of " + filter_name);
-
-            jse.ExecuteScript("arguments[0].click();", input);
         }
 
         private static void FilterByMastersInTheLivingRoom(IWebDriver driver)
         {
-            var label = driver.FindElement(By.CssSelector("label[for='event_type_871'"));
-            int text_sum = Int16.Parse(label.FindElement(By.ClassName("sum")).Text);
-            var input = label.FindElement(By.TagName("input"));
-            FilterAutomatic(driver, input, text_sum, "masters in the living room");
+            try
+            {
+                var label = driver.FindElement(By.CssSelector("label[for='event_type_871'"));
+                int text_sum = Int16.Parse(label.FindElement(By.ClassName("sum")).Text);
+                var input = label.FindElement(By.TagName("input"));
+                FilterAutomatic(driver, input, text_sum, "masters in the living room");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByMastersInTheLivingRoom " + e.Message);
+                failed++;
+            }
+
 
         }
 
         private static void GoToEventPage(IWebDriver driver)
         {
-            IWebElement first_event = driver.FindElement(By.ClassName("course-item-details"));
-            string course_item_title = first_event.FindElement(By.ClassName("course-item-title")).Text;
-            first_event.Click();
-            if (driver.Title.Contains(course_item_title))
-                Console.WriteLine("success! go to event page");
+            try
+            {
+                IWebElement first_event = driver.FindElement(By.ClassName("course-item-details"));
+                string course_item_title = first_event.FindElement(By.ClassName("course-item-title")).Text;
+                first_event.Click();
+                if (driver.Title.Contains(course_item_title))
+                {
+                    Console.WriteLine("success! go to event page");
+                    success++;
+                }
 
-            else
-                Console.WriteLine("fail! don't go to event page");
+                else
+                {
+                    Console.WriteLine("fail! don't go to event page");
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! GoToEventPage " + e.Message);
+                failed++;
+            }
+
         }
 
         private static void OrganizationLogo(IWebDriver driver)
