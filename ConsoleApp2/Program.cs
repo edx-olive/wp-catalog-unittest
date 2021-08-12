@@ -54,14 +54,15 @@ namespace Campus
             CoursesPageEnAr(driver);
             AnEventHasPassed(driver);
             EventsPage(driver);
-            /*if (driver.Url.Contains("https://campus.gov.il/"))
+            if (driver.Url.Contains("https://campus.gov.il/"))
             {
                 AssimilationOrganization(driver);
             }
             else
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
-            }*/
+                failed++;
+            }
 
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
@@ -425,7 +426,7 @@ namespace Campus
             HybridMoreCoursesBtn(driver);
             HybridCourseMoreEight(driver);
             CourseTrackAHybridCourse(driver);
-            ButtonForCourse(driver, URL + "hybrid_institution/test_ao/");
+            if (ButtonForCourse(driver, URL + "hybrid_institution/test_ao/")) success++; else failed++;
         }
 
         //shortcut functions
@@ -2228,7 +2229,7 @@ namespace Campus
                 IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
                 jse.ExecuteScript("arguments[0].click();", input);
 
-                while (driver.FindElement(By.Id("~course_load_more")).Displayed)
+                while (driver.FindElement(By.Id("course_load_more")).Displayed)
                 {
                     driver.FindElement(By.Id("course_load_more")).Click();
                 }
@@ -2305,100 +2306,244 @@ namespace Campus
 
         private static void OrganizationLogo(IWebDriver driver)
         {
-            string img = driver.FindElement(By.XPath("//div[@id='hybrid_inst_banner_img']/img")).GetAttribute("src");
-            if (img != "")
-                Console.WriteLine("success! image organization logo");
-            else
-                Console.WriteLine("fail! don't hame image organization logo");
+            try
+            {
+                string img = driver.FindElement(By.XPath("//div[@id='hybrid_inst_banner_img']/img")).GetAttribute("src");
+                if (img != "")
+                {
+                    Console.WriteLine("success! image organization logo");
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! don't hame image organization logo");
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! OrganizationLogo " + e.Message);
+                failed++;
+            }
+
         }
 
         private static void OrganizationDescription(IWebDriver driver)
         {
-            if (driver.FindElement(By.Id("h_inst_content")).Text != "")
-                Console.WriteLine("success! have content organization");
-            else
-                Console.WriteLine("fail! doesn't content organization");
+            try
+            {
+                if (driver.FindElement(By.Id("h_inst_content")).Text != "")
+                {
+                    Console.WriteLine("success! have content organization");
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! doesn't content organization");
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! OrganizationDescription " + e.Message);
+                failed++;
+            }
+
         }
 
         private static void FoundCourse(IWebDriver driver)
         {
-            string sum = driver.FindElement(By.ClassName("found-course-number")).Text;
-            string count = driver.FindElements(By.ClassName("item_post_type_course")).Count.ToString();
-            if (sum == count)
-                Console.WriteLine("success! Introduces the courses");
-            else
-                Console.WriteLine("fail! doesn't introduces the courses");
+            try
+            {
+                string sum = driver.FindElement(By.ClassName("found-course-number")).Text;
+                string count = driver.FindElements(By.ClassName("item_post_type_course")).Count.ToString();
+                if (sum == count)
+                {
+                    Console.WriteLine("success! Introduces the courses");
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! doesn't introduces the courses");
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FoundCourse " + e.Message);
+                failed++;
+            }
+
         }
 
         private static void FoundLecturer(IWebDriver driver)
         {
-            string sum = driver.FindElements(By.ClassName("found-lecturer-number"))[0].Text;
-            if (sum != "")
-                Console.WriteLine("success! Introduces the lecturers " + sum);
-            else
-                Console.WriteLine("fail! doesn't introduces the lecturers " + sum);
+            try
+            {
+                string sum = driver.FindElements(By.ClassName("found-lecturer-number"))[0].Text;
+                if (sum != "")
+                {
+                    Console.WriteLine("success! Introduces the lecturers " + sum);
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! doesn't introduces the lecturers " + sum);
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FoundLecturer " + e.Message);
+                failed++;
+            }
+
         }
 
         private static void FoundTrainers(IWebDriver driver)
         {
-            string sum = driver.FindElements(By.ClassName("found-lecturer-number"))[1].Text;
-            if (sum != "")
-                Console.WriteLine("success! Introduces the trainers " + sum);
-            else
-                Console.WriteLine("fail! doesn't introduces the trainers " + sum);
+            try
+            {
+                string sum = driver.FindElements(By.ClassName("found-lecturer-number"))[1].Text;
+                if (sum != "")
+                {
+                    Console.WriteLine("success! Introduces the trainers " + sum);
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! doesn't introduces the trainers " + sum);
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FoundTrainers " + e.Message);
+                failed++;
+            }
+
         }
 
         private static void HybridMoreCoursesBtn(IWebDriver driver)
         {
-            int count = driver.FindElements(By.ClassName("item_post_type_course")).Count;
-            if (count > 8)
+            try
             {
-                Console.WriteLine("success! courses more 8");
-                if (driver.FindElement(By.ClassName("hybrid_more_courses_btn")).Displayed)
+                int count = driver.FindElements(By.ClassName("item_post_type_course")).Count;
+                if (count > 8)
                 {
-                    Console.WriteLine("success! more courses button is display");
+                    Console.WriteLine("success! courses more 8");
+                    if (driver.FindElement(By.ClassName("hybrid_more_courses_btn")).Displayed)
+                    {
+                        Console.WriteLine("success! more courses button is display");
+                        success++;
+                    }
+                    else
+                    {
+                        Console.WriteLine("fail! more courses button isn't display");
+                        failed++;
+                    }
+
                 }
                 else
-                    Console.WriteLine("fail! more courses button isn't display");
+                {
+                    if (count > 0)
+                    {
+                        Console.WriteLine("success! courses less 8");
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! doesn't introduces the courses");
+                        failed++;
+                    }
+
+                }
             }
-            else
+            catch (Exception e)
             {
-                if (count > 0)
-                    Console.WriteLine("success! courses less 8");
-                else
-                    Console.WriteLine("fail! doesn't introduces the courses");
+                Console.WriteLine("fail! HybridMoreCoursesBtn " + e.Message);
+                failed++;
             }
+
 
         }
 
         private static void HybridCourseMoreEight(IWebDriver driver)
         {
-            IWebElement hybrid_more_courses_btn = driver.FindElement(By.ClassName("hybrid_more_courses_btn"));
-            if (hybrid_more_courses_btn.Displayed)
+            try
             {
-                hybrid_more_courses_btn.Click();
-                if (driver.FindElements(By.CssSelector(".item_post_type_course > [style=display:none]")).Count > 0)
-                    Console.WriteLine("success! Introduces all courses");
+                IWebElement hybrid_more_courses_btn = driver.FindElement(By.ClassName("hybrid_more_courses_btn"));
+                if (hybrid_more_courses_btn.Displayed)
+                {
+                    hybrid_more_courses_btn.Click();
+                    if (driver.FindElements(By.CssSelector(".item_post_type_course > [style=display:none]")).Count > 0)
+                    {
+                        Console.WriteLine("success! Introduces all courses");
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! doesn't introduces all courses");
+                        failed++;
+                    }
+
+                }
                 else
-                    Console.WriteLine("fail! doesn't introduces all courses");
+                {
+                    Console.WriteLine("impossible! doesn't have courses more 8");
+                    failed++;
+                }
+
             }
-            else
-                Console.WriteLine("impossible! doesn't have courses more 8");
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! HybridCourseMoreEight " + e.Message);
+                failed++;
+            }
 
         }
 
         private static void CourseTrackAHybridCourse(IWebDriver driver)
         {
-            IWebElement target = driver.FindElement(By.ClassName("course-item-details"));
-            ((IJavaScriptExecutor)driver).ExecuteScript(
-            "arguments[0].scrollIntoView();", target);
-            Actions actions = new Actions(driver);
-            actions.MoveToElement(target).Perform();
-            IWebElement course_item_link = driver.FindElement(By.ClassName("course-item-link"));
-            if (course_item_link.Displayed && course_item_link.Text == "לעמוד הקורס")
-                Console.WriteLine("success! show course_item_link on mouse over");
-            else
-                Console.WriteLine("fail! doesn't show course_item_link on mouse over");
+            try
+            {
+                IWebElement target = driver.FindElement(By.ClassName("course-item-details"));
+                ((IJavaScriptExecutor)driver).ExecuteScript(
+                "arguments[0].scrollIntoView();", target);
+                Actions actions = new Actions(driver);
+                actions.MoveToElement(target).Perform();
+                IWebElement course_item_link = driver.FindElement(By.ClassName("course-item-link"));
+                if (course_item_link.Displayed && course_item_link.Text == "לעמוד הקורס")
+                {
+                    Console.WriteLine("success! show course_item_link on mouse over");
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! doesn't show course_item_link on mouse over");
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! CourseTrackAHybridCourse " + e.Message);
+                failed++;
+            }
+
         }
 
         //global functions
