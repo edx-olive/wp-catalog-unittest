@@ -42,15 +42,15 @@ namespace Campus
             BlenPageTests(driver);
             if (driver.Url.Contains("https://stage.campus.gov.il/"))
             {
-               associationPageTests(driver);
+                associationPageTests(driver);
             }
             else
             {
-            Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
+                Console.WriteLine("fail or impossible! 404 - Association page doesn't exist in campus.gov");
             }
             CoursePage(driver);
-            /*if (RegistrationAndeEnrollment(driver)) success++; else failed++;
-            if (CoursesPage(driver)) success++; else failed++;
+            RegistrationAndeEnrollment(driver);
+            /*if (CoursesPage(driver)) success++; else failed++;
             if (CoursesPageEnAr(driver)) success++; else failed++;
             
             AnEventHasPassed(driver);
@@ -335,7 +335,7 @@ namespace Campus
             CoursePageRegistrationButton(driver);
         }
 
-        private static bool RegistrationAndeEnrollment(IWebDriver driver)
+        private static void RegistrationAndeEnrollment(IWebDriver driver)
         {
             driver.Url = URL;
             Console.WriteLine("go to Registration And Enrollment");
@@ -353,7 +353,6 @@ namespace Campus
             HeaderRegistrationUserName(driver);
             ToCoursePage(driver);
             ToBlendCoursePage(driver);
-            return true;
         }
 
         private static bool CoursesPage(IWebDriver driver)
@@ -1270,21 +1269,38 @@ namespace Campus
             {
                 IWebElement a = driver.FindElements(By.ClassName("login-item"))[1];
                 if (a.Text == "התחברות")
+                {
                     Console.WriteLine("success! button login text is login");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! button login text is not login");
+                    failed++;
+                }
+
 
                 a?.Click();
                 if (driver.Title.Contains("היכנס או צור חשבון") && driver.Url.Contains("login"))
+                {
                     Console.WriteLine("success! button login send user to login page");
+                    success++;
+                }
+
 
                 else
+                {
                     Console.WriteLine("login button doesn't send to login page");
+                    failed++;
+                }
+
                 driver.Navigate().Back();
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! HeaderLoginButton " + e.Message);
+                failed++;
             }
 
         }
@@ -1295,22 +1311,39 @@ namespace Campus
             {
                 IWebElement a = driver.FindElements(By.ClassName("signin"))[1];
                 if (a.Text == "הרשמה")
+                {
                     Console.WriteLine("success! button registration text is registration");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! button registration text is not registration");
+                    failed++;
+                }
+
                 a.Click();
 
                 //check is it correct page opened or not 
                 if (driver.Title.Contains("היכנס או צור חשבון") && driver.Url.Contains("register"))
+                {
                     Console.WriteLine("success! button registration send user to registration page");
+                    success++;
+                }
+
 
                 else
+                {
                     Console.WriteLine("registration button doesn't send to registration page");
+                    failed++;
+                }
+
                 driver.Navigate().Back();
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! HeaderRegistrationButton " + e.Message);
+                failed++;
             }
 
         }
@@ -1337,14 +1370,20 @@ namespace Campus
                     if (driver.Url != URL)
                         driver.Url = URL;
 
+                    success++;
                 }
 
                 else
+                {
                     Console.WriteLine("login button doesn't send to login page");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! LoginButton" + e.Message);
+                failed++;
             }
 
 
@@ -1356,13 +1395,22 @@ namespace Campus
             {
                 string user_name = driver.FindElements(By.CssSelector("[class='user-information show_for_connected_user']"))[1].Text;
                 if (user_name.Contains("שלום"))
+                {
                     Console.WriteLine("success! have user name after registration");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! doesn't have user name after registration");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! HeaderRegistrationUserName " + e.Message);
+                failed++;
             }
 
         }
@@ -1379,10 +1427,18 @@ namespace Campus
 
                 //check is it correct page opened or not 
                 if (driver.Title.Contains("אזור אישי") && driver.Url.Contains("dashboard") || driver.Title.Contains("לוח בקרה") && driver.Url.Contains("dashboard"))
+                {
                     Console.WriteLine("success! button private area send user to dashboard page");
+                    success++;
+                }
+
 
                 else
+                {
                     Console.WriteLine("fail! button private area doesn't send to dashboard page");
+                    failed++;
+                }
+
 
                 //close tab and get back
                 driver.Close();
@@ -1391,6 +1447,7 @@ namespace Campus
             catch (Exception e)
             {
                 Console.WriteLine("fail! PrivateArea " + e.Message);
+                failed++;
             }
 
 
@@ -1411,15 +1468,21 @@ namespace Campus
                     //לכן שמתי לינק פה - לבדיקה להרשמה לקורס
                     //ולינק אחר לעמוד הקורס - קורס שכבר נרשמתי אליו ע"י סלניום
                     //green_button.Click();
-                    Console.WriteLine("success! registration to this course");
+                    //Console.WriteLine("success! registration to this course");
+                    success++;
                 }
 
                 else
+                {
                     Console.WriteLine("fail! green button text in course page is not Sign up for a course");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! CoursePageRegistration " + e.Message);
+                failed++;
             }
 
 
@@ -1434,13 +1497,22 @@ namespace Campus
                 Console.WriteLine(green_button.Text);
                 //בודק אם הטקסט בכפתור לא ריק
                 if (green_button.Text != "")
+                {
                     Console.WriteLine("success! green button text in blend page is Sign up for a course");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! green button text in blend page is not Sign up for a course");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! BlendPageRegistration" + e.Message);
+                failed++;
             }
 
 
@@ -1459,19 +1531,25 @@ namespace Campus
                 //check is it correct page opened or not 
                 if (driver.Title.Contains("אזור אישי") && driver.Url.Contains("dashboard") || driver.Title.Contains("לוח בקרה") && driver.Url.Contains("dashboard"))
                 {
-                    Console.WriteLine("success! button dashboard send user to dashboard page");
+                    //Console.WriteLine("success! button dashboard send user to dashboard page");
                     IWebElement li_logout = driver.FindElement(By.CssSelector("span[class='user-name']"));
                     li_logout?.Click();
                     IWebElement a_logout = driver.FindElement(By.CssSelector("a[href='/logout']"));
                     a_logout?.Click();
                     Console.WriteLine("success! Log out");
+                    success++;
                 }
                 else
+                {
                     Console.WriteLine("fail! Log out");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! LogOut " + e.Message);
+                failed++;
             }
 
         }
@@ -1484,13 +1562,22 @@ namespace Campus
                 IWebElement green_button = driver.FindElement(By.CssSelector("[class='signup-course-button con_to_course ']"));
                 Console.WriteLine(green_button.Text);
                 if (green_button.Displayed && green_button.Text == "לעמוד הקורס")
+                {
                     Console.WriteLine("success! green button text in course page is to course page");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! green button text in course page is to course page. The current course may have been deleted from my personal area");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! ToCoursePage " + e.Message);
+                failed++;
             }
 
         }
@@ -1503,13 +1590,22 @@ namespace Campus
                 IWebElement green_button = driver.FindElement(By.CssSelector("[class='signup-course-button con_to_course ']"));
 
                 if (green_button.Text == "משתמש מחובר")
+                {
                     Console.WriteLine("success! green button text in course page is to blend course page");
+                    success++;
+                }
+
                 else
+                {
                     Console.WriteLine("fail! green button text in course page is to blend course page");
+                    failed++;
+                }
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("fail! ToBlendCoursePage " + e.Message);
+                failed++;
             }
 
         }
