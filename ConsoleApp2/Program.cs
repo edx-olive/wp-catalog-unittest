@@ -34,7 +34,7 @@ namespace Campus
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
             CloseFirstPopup(driver);
-            Pagehome(driver); 
+            Pagehome(driver);
             PagesAcademicInstitution(driver);
             FloorLearningObjectives(driver);
             CoursesSection(driver);
@@ -119,11 +119,12 @@ namespace Campus
 
         private static void PagesAcademicInstitution(IWebDriver driver)
         {
-            for (int i = 0; i < 2; i++)
+            try
             {
-                Thread.Sleep(1000);
-                try
+                for (int i = 0; i < 2; i++)
                 {
+                    Thread.Sleep(1000);
+
                     IWebElement page = driver.FindElement(By.Id("academic-institution-slider")).FindElements(By.CssSelector("div[aria-hidden='false']"))[i].FindElement(By.TagName("a"));
                     string title_page = page.FindElement(By.TagName("img")).GetAttribute("alt");
                     page?.Click();
@@ -181,16 +182,16 @@ namespace Campus
                         failed++;
                     }
 
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("fail! " + e.Message);
-                    failed++;
+                    IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+                    go_back?.Click();
+                    Thread.Sleep(500);
                 }
 
-                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-                go_back?.Click();
-                Thread.Sleep(500);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! PagesAcademicInstitution  " + e.Message);
+                failed++;
             }
 
         }
@@ -200,16 +201,16 @@ namespace Campus
             driver.Url = URL;
             Console.WriteLine("go to Learning Objectives page");
             //הכנה לבגרויות
-            if (PreparationForMatriculation(driver)) success++; else failed++;
+            PreparationForMatriculation(driver);
 
             Thread.Sleep(100);
             //בית ספר
             //driver.Url = URL;
-            if (School(driver)) success++; else failed++;
+            School(driver);
             Thread.Sleep(200);
             //השכלה
             //driver.Url = URL;
-            if (Education(driver)) success++; else failed++;
+            Education(driver);
 
         }
 
@@ -440,148 +441,177 @@ namespace Campus
 
         //shortcut functions
 
-        private static bool PreparationForMatriculation(IWebDriver driver)
+        private static void PreparationForMatriculation(IWebDriver driver)
         {
-            IWebElement link_learning_Objectives = driver.FindElement(By.ClassName("category-section")).FindElement(By.CssSelector("a[href='" + URL + "areas_of_knowledge/prepartion_for_matriculation_exams/']"));
-            link_learning_Objectives?.Click();
-            string title = driver.Title;
-            if (title.Contains("לבגרויות"))
+            try
             {
-                var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "faq-section" };
-
-                int existing_floors = 0, non_existing_floors = 0;
-                foreach (var floor in class_floors)
+                IWebElement link_learning_Objectives = driver.FindElement(By.ClassName("category-section")).FindElement(By.CssSelector("a[href='" + URL + "areas_of_knowledge/prepartion_for_matriculation_exams/']"));
+                link_learning_Objectives?.Click();
+                string title = driver.Title;
+                if (title.Contains("לבגרויות"))
                 {
-                    if (ClassIsExists(floor, driver))
-                        existing_floors++;
+                    var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "faq-section" };
+
+                    int existing_floors = 0, non_existing_floors = 0;
+                    foreach (var floor in class_floors)
+                    {
+                        if (ClassIsExists(floor, driver))
+                            existing_floors++;
+                        else
+                            non_existing_floors++;
+                    }
+
+                    var id_floors = new List<string>() { "how-it-work" };
+                    foreach (var floor in id_floors)
+                    {
+                        if (IdIsExists(floor, driver))
+                            existing_floors++;
+                        else
+                            non_existing_floors++;
+                    }
+
+                    if (non_existing_floors == 0)
+                    {
+                        Console.WriteLine("success! Preparation for matriculation have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                        success++;
+                    }
                     else
-                        non_existing_floors++;
-                }
+                    {
+                        Console.WriteLine("fail! Preparation for matriculation have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                        failed++;
+                    }
 
-                var id_floors = new List<string>() { "how-it-work" };
-                foreach (var floor in id_floors)
-                {
-                    if (IdIsExists(floor, driver))
-                        existing_floors++;
-                    else
-                        non_existing_floors++;
-                }
-
-                if (non_existing_floors == 0)
-                {
-                    Console.WriteLine("success! Preparation for matriculation have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
                 }
                 else
                 {
-                    Console.WriteLine("fail! Preparation for matriculation have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
-                    return false;
+                    Console.WriteLine("fail! go to Preparation for matriculation ");
+                    failed++;
                 }
 
+                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+                go_back?.Click();
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("fail! go to Preparation for matriculation ");
-                return false;
+                Console.WriteLine("fail! PreparationForMatriculation " + e.Message);
+                failed++;
             }
-
-            IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-            go_back?.Click();
-            return true;
 
         }
 
-        private static bool School(IWebDriver driver)
+        private static void School(IWebDriver driver)
         {
-            IWebElement link_learning_Objectives = driver.FindElement(By.ClassName("category-section")).FindElement(By.CssSelector("a[href='" + URL + "areas_of_knowledge/career-and-high-tech-school/']"));
-            link_learning_Objectives?.Click();
-            string title = driver.Title;
-            if (title.Contains("בית ספר לקריירה והייטק"))
+            try
             {
-                var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "testimonials-lobby-knowledge", "faq-section" };
-                int existing_floors = 0, non_existing_floors = 0;
-                foreach (var floor in class_floors)
+                IWebElement link_learning_Objectives = driver.FindElement(By.ClassName("category-section")).FindElement(By.CssSelector("a[href='" + URL + "areas_of_knowledge/career-and-high-tech-school/']"));
+                link_learning_Objectives?.Click();
+                string title = driver.Title;
+                if (title.Contains("בית ספר לקריירה והייטק"))
                 {
-                    if (ClassIsExists(floor, driver))
-                        existing_floors++;
-                    else
-                        non_existing_floors++;
-                }
+                    var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "testimonials-lobby-knowledge", "faq-section" };
+                    int existing_floors = 0, non_existing_floors = 0;
+                    foreach (var floor in class_floors)
+                    {
+                        if (ClassIsExists(floor, driver))
+                            existing_floors++;
+                        else
+                            non_existing_floors++;
+                    }
 
-                var id_floors = new List<string>() { "how-it-work" };
-                foreach (var floor in id_floors)
-                {
-                    if (IdIsExists(floor, driver))
-                        existing_floors++;
-                    else
-                        non_existing_floors++;
-                }
+                    var id_floors = new List<string>() { "how-it-work" };
+                    foreach (var floor in id_floors)
+                    {
+                        if (IdIsExists(floor, driver))
+                            existing_floors++;
+                        else
+                            non_existing_floors++;
+                    }
 
-                if (non_existing_floors == 0)
-                {
-                    Console.WriteLine("success! High-tech-school have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                    if (non_existing_floors == 0)
+                    {
+                        Console.WriteLine("success! High-tech-school have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                        success++;
+                    }
+                    else
+                    {
+                        Console.WriteLine("fail! High-tech-school have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                        failed++;
+                    }
+
                 }
                 else
                 {
-                    Console.WriteLine("fail! High-tech-school have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
-                    return false;
+                    Console.WriteLine("fail! go to  school");
+                    failed++;
                 }
 
+                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+                go_back?.Click();
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("fail! go to  school");
-                return false;
+                Console.WriteLine("fail! School " + e.Message);
+                failed++;
             }
-
-            IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-            go_back?.Click();
-            return true;
 
         }
 
-        private static bool Education(IWebDriver driver)
+        private static void Education(IWebDriver driver)
         {
-            IWebElement link_learning_Objectives = driver.FindElement(By.ClassName("category-section")).FindElement(By.CssSelector("a[href='" + URL + "areas_of_knowledge/academic-education-and-broadening-horizons/']"));
-            link_learning_Objectives?.Click();
-            string title = driver.Title;
-            if (title.Contains("השכלה אקדמית"))
+            try
             {
-                var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "faq-section" };
-                int existing_floors = 0, non_existing_floors = 0;
-                foreach (var floor in class_floors)
-                {
-                    if (ClassIsExists(floor, driver))
-                        existing_floors++;
-                    else
-                        non_existing_floors++;
-                }
 
-                var id_floors = new List<string>() { "how-it-work" };
-                foreach (var floor in id_floors)
+                IWebElement link_learning_Objectives = driver.FindElement(By.ClassName("category-section")).FindElement(By.CssSelector("a[href='" + URL + "areas_of_knowledge/academic-education-and-broadening-horizons/']"));
+                link_learning_Objectives?.Click();
+                string title = driver.Title;
+                if (title.Contains("השכלה אקדמית"))
                 {
-                    if (IdIsExists(floor, driver))
-                        existing_floors++;
-                    else
-                        non_existing_floors++;
-                }
+                    var class_floors = new List<string>() { "banner-image", "academic-institution", "courses-section", "more-info-lobby", "faq-section" };
+                    int existing_floors = 0, non_existing_floors = 0;
+                    foreach (var floor in class_floors)
+                    {
+                        if (ClassIsExists(floor, driver))
+                            existing_floors++;
+                        else
+                            non_existing_floors++;
+                    }
 
-                if (non_existing_floors == 0)
-                    Console.WriteLine("success! Academic-education-and-broadening-horizons have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                    var id_floors = new List<string>() { "how-it-work" };
+                    foreach (var floor in id_floors)
+                    {
+                        if (IdIsExists(floor, driver))
+                            existing_floors++;
+                        else
+                            non_existing_floors++;
+                    }
+
+                    if (non_existing_floors == 0)
+                    {
+                        Console.WriteLine("success! Academic-education-and-broadening-horizons have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! Academic-education-and-broadening-horizons have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
+                        failed++;
+                    }
+                }
                 else
                 {
-                    Console.WriteLine("fail! Academic-education-and-broadening-horizons have existing_floors:" + existing_floors + " non_existing_floors:" + non_existing_floors);
-                    return false;
+                    Console.WriteLine("fail! go to education");
+                    failed++;
                 }
-            }
-            else
-            {
-                Console.WriteLine("fail! go to education");
-                return false;
-            }
 
-            IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-            go_back?.Click();
-            return true;
+                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+                go_back?.Click();
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! Education " + e.Message);
+                failed++;
+            }
         }
 
         private static void CountCourse(IWebDriver driver)
@@ -971,7 +1001,7 @@ namespace Campus
             {
                 driver.Url = url;
                 driver.FindElement(By.Id("menu-item-6449")).Click();
-                Thread.Sleep(400);
+                Thread.Sleep(500);
                 if (driver.Title.Contains("קורסים"))
                     Console.WriteLine("success! the button navigate to courses page");
 
@@ -1684,7 +1714,7 @@ namespace Campus
                     while (driver.FindElement(By.Id("course_load_more")).Displayed)
                     {
                         driver.FindElement(By.Id("course_load_more")).Click();
-                        Thread.Sleep(700);
+                        Thread.Sleep(1000);
                     }
                 }
                 catch (Exception e)
