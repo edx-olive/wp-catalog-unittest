@@ -15,22 +15,22 @@ namespace Campus
     class Program
     {
         //public static String URL = "https://campus.gov.il/";
-        public static String URL = "https://stage.campus.gov.il/";
+        //public static String URL = "https://stage.campus.gov.il/";
         public static int failed = 0, success = 0;
         //RETURN
-        //public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
+        public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
         static void Main(string[] args)
         {
 
             //RETURN
-            //ChromeOptions options = new ChromeOptions();
-            //options.AddArgument("--headless");
-            //options.AddArgument("--whitelisted-ips");
-            //options.AddArgument("--no-sandbox");
-            //options.AddArgument("--disable-extensions");
-            //options.AddArgument("--disable-dev-shm-usage");        
-            //IWebDriver driver = new ChromeDriver(options);
-            IWebDriver driver = new FirefoxDriver();
+            ChromeOptions options = new ChromeOptions();
+            options.AddArgument("--headless");
+            options.AddArgument("--whitelisted-ips");
+            options.AddArgument("--no-sandbox");
+            options.AddArgument("--disable-extensions");
+            options.AddArgument("--disable-dev-shm-usage");        
+            IWebDriver driver = new ChromeDriver(options);
+            //IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
             CloseFirstPopup(driver);
@@ -358,7 +358,7 @@ namespace Campus
             CoursePageRegistration(driver);
             BlendPageRegistration(driver);
             LogOut(driver);
-            Thread.Sleep(2000);
+            Thread.Sleep(3000);
             LoginButton(driver);
             HeaderRegistrationUserName(driver);
             ToCoursePage(driver);
