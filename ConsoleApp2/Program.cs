@@ -22,6 +22,7 @@ namespace Campus
         static void Main(string[] args)
         {
 
+            Console.WriteLine("Working Url is:" + URL);
             //RETURN
             ChromeOptions options = new ChromeOptions();
             options.AddArgument("--headless");
