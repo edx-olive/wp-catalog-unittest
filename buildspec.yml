@@ -37,6 +37,6 @@ phases:
       - docker build -t campus-unitest .
     # pushing to repo  
       - docker login -u AWS -p $(aws ecr get-login-password --region eu-west-1) 749395632050.dkr.ecr.eu-west-1.amazonaws.com
-      - docker tag campus-unitest:latest 749395632050.dkr.ecr.eu-west-1.amazonaws.com/campus-unitest:latest
-      - docker push 749395632050.dkr.ecr.eu-west-1.amazonaws.com/campus-unitest:latest
+      - docker tag campus-unitest 749395632050.dkr.ecr.eu-west-1.amazonaws.com/campus-unitest:stage
+      - docker push 749395632050.dkr.ecr.eu-west-1.amazonaws.com/campus-unitest:stage
    
