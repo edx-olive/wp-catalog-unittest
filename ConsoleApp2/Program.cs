@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 //RETURN
-//using System.Environment;
+using System.Environment;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
@@ -15,25 +15,25 @@ namespace Campus
     class Program
     {
         //public static String URL = "https://campus.gov.il/";
-        public static String URL = "https://stage.campus.gov.il/";
+        //public static String URL = "https://stage.campus.gov.il/";
         public static int failed = 0, success = 0;
         //RETURN
-        //public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
+        public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
         static void Main(string[] args)
         {
 
             //RETURN
-            //ChromeOptions options = new ChromeOptions();
-            //options.AddArgument("--headless");
-            //options.AddArgument("--whitelisted-ips");
-            //options.AddArgument("--no-sandbox");
-            //options.AddArgument("--disable-extensions");
-            //options.AddArgument("--disable-dev-shm-usage");        
-            //IWebDriver driver = new ChromeDriver(options);
-            IWebDriver driver = new FirefoxDriver();
+            ChromeOptions options = new ChromeOptions();
+            options.AddArgument("--headless");
+            options.AddArgument("--whitelisted-ips");
+            options.AddArgument("--no-sandbox");
+            options.AddArgument("--disable-extensions");
+            options.AddArgument("--disable-dev-shm-usage");        
+            IWebDriver driver = new ChromeDriver(options);
+            //IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            /*CloseFirstPopup(driver);
+            CloseFirstPopup(driver);
             Pagehome(driver);
             PagesAcademicInstitution(driver);
             FloorLearningObjectives(driver);
@@ -51,10 +51,10 @@ namespace Campus
                 failed++;
             }
             CoursePage(driver);
-            RegistrationAndeEnrollment(driver);*/
+            RegistrationAndeEnrollment(driver);
             CoursesPage(driver);
             CoursesPageEnAr(driver);
-            /*AnEventHasPassed(driver);
+            AnEventHasPassed(driver);
             EventsPage(driver);
             if (driver.Url.Contains("https://campus.gov.il/"))
             {
@@ -64,7 +64,7 @@ namespace Campus
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
                 failed++;
-            }*/
+            }
 
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
