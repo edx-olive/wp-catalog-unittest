@@ -15,25 +15,25 @@ namespace Campus
     class Program
     {
         //public static String URL = "https://campus.gov.il/";
-        //public static String URL = "https://stage.campus.gov.il/";
+        public static String URL = "https://stage.campus.gov.il/";
         public static int failed = 0, success = 0;
         //RETURN
-        public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
+        //public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
         static void Main(string[] args)
         {
 
             //RETURN
-            ChromeOptions options = new ChromeOptions();
-            options.AddArgument("--headless");
-            options.AddArgument("--whitelisted-ips");
-            options.AddArgument("--no-sandbox");
-            options.AddArgument("--disable-extensions");
-            options.AddArgument("--disable-dev-shm-usage");        
-            IWebDriver driver = new ChromeDriver(options);
-            //IWebDriver driver = new FirefoxDriver();
+            //ChromeOptions options = new ChromeOptions();
+            //options.AddArgument("--headless");
+            //options.AddArgument("--whitelisted-ips");
+            //options.AddArgument("--no-sandbox");
+            //options.AddArgument("--disable-extensions");
+            //options.AddArgument("--disable-dev-shm-usage");        
+            //IWebDriver driver = new ChromeDriver(options);
+            IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
-            CloseFirstPopup(driver);
+            /*CloseFirstPopup(driver);
             Pagehome(driver);
             PagesAcademicInstitution(driver);
             FloorLearningObjectives(driver);
@@ -51,10 +51,10 @@ namespace Campus
                 failed++;
             }
             CoursePage(driver);
-            RegistrationAndeEnrollment(driver);
+            RegistrationAndeEnrollment(driver);*/
             CoursesPage(driver);
             CoursesPageEnAr(driver);
-            AnEventHasPassed(driver);
+            /*AnEventHasPassed(driver);
             EventsPage(driver);
             if (driver.Url.Contains("https://campus.gov.il/"))
             {
@@ -64,7 +64,7 @@ namespace Campus
             {
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
                 failed++;
-            }
+            }*/
 
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
             Quit(driver);
@@ -1688,7 +1688,54 @@ namespace Campus
                 institution?.Click();
 
                 IWebElement input = driver.FindElement(By.Id("institution_1128"));
-                Filters(driver, input, "institution");
+                try
+                {
+                    IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                    jse.ExecuteScript("arguments[0].click();", input);
+
+                    Thread.Sleep(900);
+                    driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
+
+                    try
+                    {
+                        while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                        {
+                            driver.FindElement(By.Id("course_load_more")).Click();
+                            Thread.Sleep(2000);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("fail! click on load more button " + e.Message);
+                        failed++;
+                    }
+
+
+                    Console.WriteLine("success! filtering of institution");
+                    success++;
+
+                    int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                    int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+                    if (sum_course_text == sum_course_list)
+                    {
+                        Console.WriteLine("success! text sum is equal to courses list");
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! text sum is not equal to courses list");
+                        failed++;
+                    }
+
+
+                    jse.ExecuteScript("arguments[0].click();", input);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("fail! filter " + e.Message);
+                    failed++;
+                }
             }
             catch (Exception e)
             {
@@ -1707,14 +1754,14 @@ namespace Campus
 
                 Thread.Sleep(900);
                 driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
-
-                Thread.Sleep(40000);
+ 
+                Thread.Sleep(50000);
                 try
                 {
                     while (driver.FindElement(By.Id("course_load_more")).Displayed)
                     {
                         driver.FindElement(By.Id("course_load_more")).Click();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(2000);
                     }
                 }
                 catch (Exception e)
@@ -1729,7 +1776,8 @@ namespace Campus
 
                 int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
                 int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
-                if (sum_course_text == sum_course_list)
+                int sum_of_courses_in_parentheses = Int16.Parse(input.FindElement(By.XPath("following-sibling::*[1]")).FindElement(By .ClassName("sum")).Text.Replace("(", "").Replace(")", ""));
+                if (sum_course_text == sum_course_list && sum_course_text == sum_of_courses_in_parentheses)
                 {
                     Console.WriteLine("success! text sum is equal to courses list");
                     success++;
@@ -1806,7 +1854,42 @@ namespace Campus
                 institution?.Click();
 
                 IWebElement input = driver.FindElement(By.Id(input_checkbox));
-                FiltersEnAr(driver, input, "institution");
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+
+                if (driver.FindElement(By.CssSelector("div[class='row wrap-top-bar-search']")).FindElement(By.CssSelector("[class='filter_dynamic_tag']")) != null)
+                {
+                    while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                    {
+                        driver.FindElement(By.Id("course_load_more")).Click();
+                        Thread.Sleep(15);
+                    }
+
+                    Console.WriteLine("success! filtering of institution");
+                    success++;
+                    int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                    int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+                    if (sum_course_text == sum_course_list)
+                    {
+                        Console.WriteLine("success! text sum is equal to courses list");
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! text sum is not equal to courses list");
+                        failed++;
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("fail! can not filtering of institution");
+                    failed++;
+                }
+
+
+                jse.ExecuteScript("arguments[0].click();", input);
             }
             catch (Exception e)
             {
@@ -1836,7 +1919,8 @@ namespace Campus
                     success++;
                     int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
                     int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
-                    if (sum_course_text == sum_course_list)
+                    int sum_of_courses_in_parentheses = Int16.Parse(input.FindElement(By.XPath("following-sibling::*[1]")).FindElement(By.ClassName("sum")).Text.Replace("(", "").Replace(")", ""));
+                    if (sum_course_text == sum_course_list && sum_course_text == sum_of_courses_in_parentheses)
                     {
                         Console.WriteLine("success! text sum is equal to courses list");
                         success++;
