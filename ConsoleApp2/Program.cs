@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 //RETURN
-//using System.Environment;
+using System.Environment;
 using OpenQA.Selenium;
 // using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
@@ -1689,7 +1689,54 @@ namespace Campus
                 institution?.Click();
 
                 IWebElement input = driver.FindElement(By.Id("institution_1128"));
-                Filters(driver, input, "institution");
+                try
+                {
+                    IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                    jse.ExecuteScript("arguments[0].click();", input);
+
+                    Thread.Sleep(900);
+                    driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
+
+                    try
+                    {
+                        while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                        {
+                            driver.FindElement(By.Id("course_load_more")).Click();
+                            Thread.Sleep(2000);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("fail! click on load more button " + e.Message);
+                        failed++;
+                    }
+
+
+                    Console.WriteLine("success! filtering of institution");
+                    success++;
+
+                    int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                    int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+                    if (sum_course_text == sum_course_list)
+                    {
+                        Console.WriteLine("success! text sum is equal to courses list");
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! text sum is not equal to courses list");
+                        failed++;
+                    }
+
+
+                    jse.ExecuteScript("arguments[0].click();", input);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("fail! filter " + e.Message);
+                    failed++;
+                }
             }
             catch (Exception e)
             {
@@ -1708,14 +1755,14 @@ namespace Campus
 
                 Thread.Sleep(900);
                 driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
-
-                Thread.Sleep(40000);
+ 
+                Thread.Sleep(50000);
                 try
                 {
                     while (driver.FindElement(By.Id("course_load_more")).Displayed)
                     {
                         driver.FindElement(By.Id("course_load_more")).Click();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(2000);
                     }
                 }
                 catch (Exception e)
@@ -1730,7 +1777,8 @@ namespace Campus
 
                 int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
                 int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
-                if (sum_course_text == sum_course_list)
+                int sum_of_courses_in_parentheses = Int16.Parse(input.FindElement(By.XPath("following-sibling::*[1]")).FindElement(By .ClassName("sum")).Text.Replace("(", "").Replace(")", ""));
+                if (sum_course_text == sum_course_list && sum_course_text == sum_of_courses_in_parentheses)
                 {
                     Console.WriteLine("success! text sum is equal to courses list");
                     success++;
@@ -1807,7 +1855,42 @@ namespace Campus
                 institution?.Click();
 
                 IWebElement input = driver.FindElement(By.Id(input_checkbox));
-                FiltersEnAr(driver, input, "institution");
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+
+                if (driver.FindElement(By.CssSelector("div[class='row wrap-top-bar-search']")).FindElement(By.CssSelector("[class='filter_dynamic_tag']")) != null)
+                {
+                    while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                    {
+                        driver.FindElement(By.Id("course_load_more")).Click();
+                        Thread.Sleep(15);
+                    }
+
+                    Console.WriteLine("success! filtering of institution");
+                    success++;
+                    int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                    int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+                    if (sum_course_text == sum_course_list)
+                    {
+                        Console.WriteLine("success! text sum is equal to courses list");
+                        success++;
+                    }
+
+                    else
+                    {
+                        Console.WriteLine("fail! text sum is not equal to courses list");
+                        failed++;
+                    }
+
+                }
+                else
+                {
+                    Console.WriteLine("fail! can not filtering of institution");
+                    failed++;
+                }
+
+
+                jse.ExecuteScript("arguments[0].click();", input);
             }
             catch (Exception e)
             {
@@ -1837,7 +1920,8 @@ namespace Campus
                     success++;
                     int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
                     int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
-                    if (sum_course_text == sum_course_list)
+                    int sum_of_courses_in_parentheses = Int16.Parse(input.FindElement(By.XPath("following-sibling::*[1]")).FindElement(By.ClassName("sum")).Text.Replace("(", "").Replace(")", ""));
+                    if (sum_course_text == sum_course_list && sum_course_text == sum_of_courses_in_parentheses)
                     {
                         Console.WriteLine("success! text sum is equal to courses list");
                         success++;

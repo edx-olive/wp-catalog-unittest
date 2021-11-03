@@ -6,6 +6,10 @@
     <PublishChromeDriver>true</PublishChromeDriver>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath></OutputPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="chromedriver" Version="19.0.1068.5" />
     <PackageReference Include="NUnit" Version="3.13.1" />
