@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Threading;
 //RETURN
 using System.Environment;
+
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Interactions;
@@ -19,6 +20,7 @@ namespace Campus
         public static int failed = 0, success = 0;
         //RETURN
         public static String URL = Environment.GetEnvironmentVariable("CAMPUS_URL");
+
         static void Main(string[] args)
         {
 
@@ -30,6 +32,7 @@ namespace Campus
             options.AddArgument("--disable-extensions");
             options.AddArgument("--disable-dev-shm-usage");        
             IWebDriver driver = new ChromeDriver(options);
+
             //IWebDriver driver = new FirefoxDriver();
             driver.Manage().Window.Maximize();
             driver.Navigate().GoToUrl(URL);
@@ -65,8 +68,11 @@ namespace Campus
                 Console.WriteLine("fail or impossible! 404 - Assimilation Organization page doesn't exist in stage.campus.gov");
                 failed++;
             }
+            ProjectPage(driver);
 
             Console.WriteLine("Final Mode A number of successful functions:" + success + " and a number of failed functions:" + failed);
+
+
             Quit(driver);
         }
 
@@ -235,7 +241,7 @@ namespace Campus
                         Console.WriteLine("success! course page");
                         success++;
                         //בודק אם מספר הקורסים המוצג בכותרת שווה לכמות הקורסים המוצגים
-                        CountCourse(driver);
+                        TitleAndCountCourses(driver, "108.2");
                         // בודק אם יש אפשרות של סינון שפה -> אם כן אז שולף את השפה ובודק תקינות סינון של השפה שנבחרה
                         LanguagesOptions(driver);
                         if (ChangeLanguageEn(driver, "Courses Page")) success++; else failed++;
@@ -399,7 +405,7 @@ namespace Campus
             Console.WriteLine("go to an event has passed ");
             EventProducerLogo(driver);
             ImageInBanner(driver);
-            TitleInBanner(driver, "title-course");
+            TitleInBanner(driver, "//[@class='title-course']");
             SubtitleInBanner(driver);
             PriceInBottomOfBanner(driver);
             DateInBottomOfBanner(driver);
@@ -612,31 +618,6 @@ namespace Campus
                 Console.WriteLine("fail! Education " + e.Message);
                 failed++;
             }
-        }
-
-        private static void CountCourse(IWebDriver driver)
-        {
-            try
-            {
-                int sum_course_title = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
-                int sum_list_course = driver.FindElement(By.ClassName("output-courses")).FindElements(By.ClassName("item_post_type_course")).Count;
-                if (sum_course_title == sum_list_course)
-                {
-                    Console.WriteLine("success! the amount of courses is compatible ");
-                    success++;
-                }
-                else
-                {
-                    Console.WriteLine("fail! " + sum_course_title + " != " + sum_list_course + " :( ");
-                    failed++;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("fail! Count Course " + e.Message);
-                failed++;
-            }
-
         }
 
         private static void LanguagesOptions(IWebDriver driver)
@@ -976,7 +957,7 @@ namespace Campus
                 Console.WriteLine("success! get end date " + wrap_info.FindElement(By.XPath("//span[@class='end info-course-list-bold']/./following-sibling::span")).Text);
                 Console.WriteLine("success! get price " + wrap_info.FindElement(By.XPath("//span[@class='price info-course-list-bold']/./following-sibling::span")).Text);
                 Console.WriteLine("success! get language " + wrap_info.FindElement(By.XPath("//span[@class='language info-course-list-bold']/./following-sibling::span")).Text);
-                success = success + 7;
+                success += 7;
                 var info_langs_spans = wrap_info.FindElements(By.ClassName("info_lang_span"));
                 foreach (var item in info_langs_spans)
                 {
@@ -1754,7 +1735,7 @@ namespace Campus
 
                 Thread.Sleep(900);
                 driver.FindElements(By.CssSelector("a[class='ajax_filter_btn']"))[1].Click();
- 
+
                 Thread.Sleep(50000);
                 try
                 {
@@ -1776,7 +1757,7 @@ namespace Campus
 
                 int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
                 int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
-                int sum_of_courses_in_parentheses = Int16.Parse(input.FindElement(By.XPath("following-sibling::*[1]")).FindElement(By .ClassName("sum")).Text.Replace("(", "").Replace(")", ""));
+                int sum_of_courses_in_parentheses = Int16.Parse(input.FindElement(By.XPath("following-sibling::*[1]")).FindElement(By.ClassName("sum")).Text.Replace("(", "").Replace(")", ""));
                 if (sum_course_text == sum_course_list && sum_course_text == sum_of_courses_in_parentheses)
                 {
                     Console.WriteLine("success! text sum is equal to courses list");
@@ -2048,21 +2029,20 @@ namespace Campus
 
         }
 
-        private static void TitleInBanner(IWebDriver driver, string class_title)
+        private static void TitleInBanner(IWebDriver driver, string class_title, string IdScript = "")
         {
             try
             {
-
-                string title = driver.FindElement(By.ClassName(class_title)).Text;
+                string title = driver.FindElement(By.XPath(class_title)).Text;
                 if (title != "")
                 {
-                    Console.WriteLine("success! have title in banner");
+                    Console.WriteLine("success! have title in banner " + IdScript);
                     success++;
                 }
 
                 else
                 {
-                    Console.WriteLine("fail! don't have title in banner");
+                    Console.WriteLine("fail! don't have title in banner " + IdScript);
                     failed++;
                 }
             }
@@ -2702,6 +2682,421 @@ namespace Campus
 
         }
 
+        private static void ProjectPage(IWebDriver driver)
+        {
+            driver.Url = URL + "project/testpage";
+            if (ChangeLanguageEn(driver, "project")) success++; else failed++;
+            if (ChangeLanguageAr(driver, "project")) success++; else failed++;
+            if (ChangeLanguageHe(driver, "project")) success++; else failed++;
+            ImageInBanner(driver);
+            TitleInBanner(driver, "//h1[@id='muni_page_banner']/span", "902.2");
+            LogoInBannerMuni(driver, "902.3");
+            AcademicsSlider(driver);
+            driver.Url = URL + "project/testpage";
+            PersonalitiesProject(driver);
+            BannerCourses(driver);
+            CountCubesOfCourses(driver, "912");
+            FilterByInstitutionProject(driver, "institution_1128", "913.1", "913.2", "913.3");
+            FilterProject(driver, driver.FindElement(By.Id("language_111")), "914.1", "914.2", "914.3");
+            VideosHowtoLearn(driver);
+            FloorQuestionsAndAnswers(driver);
+
+        }
+
+        private static void LogoInBannerMuni(IWebDriver driver, string IdScript)
+        {
+            try
+            {
+                string img = driver.FindElement(By.XPath("//a[@class='img_wrap']/img")).GetAttribute("src");
+                if (img != "")
+                {
+                    Console.WriteLine("success! " + IdScript);
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! " + IdScript);
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! LogoInBannerMuni " + IdScript + " " + e.Message);
+                failed++;
+            }
+        }
+
+        private static void AcademicsSlider(IWebDriver driver)
+        {
+            try
+            {
+                // var first_academic = driver.FindElement(By.XPath("//div[@class='carousel-item slick-slide slick-active'/a"));
+                var first_academic = driver.FindElement(By.CssSelector("div[class='carousel-item slick-slide slick-active']")).FindElement(By.TagName("a"));
+                Console.WriteLine("success! 903");
+                success++;
+                string aria_label_first_academic = first_academic.GetAttribute("aria-label");
+                first_academic.Click();
+                if (driver.Title.Contains(aria_label_first_academic))
+                {
+                    Console.WriteLine("success! 905");
+                    success++;
+                }
+                else
+                {
+                    Console.WriteLine("fail! 905");
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! 903 " + e.Message);
+                failed++;
+            }
+
+        }
+
+        private static void PersonalitiesProject(IWebDriver driver)
+        {
+            try
+            {
+                var two_image = driver.FindElements(By.ClassName("single_project_quote"));
+                CompareCounts(two_image.Count, 2, "906.1");
+                int index = 0;
+                foreach (var item in two_image)
+                {
+                    index += 1;
+                    ImageSrc(item.FindElement(By.TagName("img")), index + "/2 906.2");
+                    TextString(item.FindElement(By.ClassName("single_project_quote_name_and_role")), index + "/2 906.3");
+                    TextString(item.FindElement(By.ClassName("single_project_quote_short_text")), index + "/2 906.4");
+                    TextString(item.FindElement(By.ClassName("single_project_quote_long_text")), index + "/2 906.5");
+                }
+                BackgroundColor(two_image[0], "rgba(210, 229, 248, 0.61)", "1/2 906.6");
+                BackgroundColor(two_image[1], "rgb(241, 246, 251)", "2/2 906.6");
+                ReadMoreBtnPersonalities(two_image[0]);
+                ReadMoreBtnPersonalities(two_image[1]);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! 906 " + e.Message);
+                failed++;
+            }
+        }
+
+        private static void CompareCounts(int count_elements, int count, string IdScript)
+        {
+            if (count_elements == count)
+            {
+                Console.WriteLine("success! " + IdScript);
+                success++;
+            }
+            else
+            {
+                Console.WriteLine("fail! " + IdScript);
+                failed++;
+            }
+
+        }
+
+        private static void BackgroundColor(IWebElement element, string color, string IdScript)
+        {
+            if (element.GetCssValue("background-color") == color)
+            {
+                Console.WriteLine("success! " + IdScript);
+            }
+            else
+            {
+                Console.WriteLine("fail! " + IdScript);
+            }
+        }
+
+        private static void ReadMoreBtnPersonalities(IWebElement element)
+        {
+            try
+            {
+                IWebElement element_btn = element.FindElement(By.XPath("//a[@class='new_design_btn single_project_quote_btn']"));
+                if (element_btn.Displayed)
+                {
+                    Console.WriteLine("success! 907.1 ");
+                    success++;
+                    element_btn.Click();
+                    if (IsElementPresentByElement(element, By.XPath("//div[@class='single_project_quote_long_text expanded']")))
+                    {
+                        Console.WriteLine("success! 907.2 ");
+                        success++;
+                    }
+                    else
+                    {
+                        Console.WriteLine("fail! 907.2");
+                        failed++;
+                    }
+
+                    if (element_btn.Text == "סגור")
+                    {
+                        Console.WriteLine("success! 907.3 ");
+                        success++;
+                    }
+                    else
+                    {
+                        Console.WriteLine("fail! 907.3");
+                        failed++;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("fail! 907.1");
+                    failed++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! 907 " + e.Message);
+                failed++;
+            }
+
+        }
+
+        private static bool IsElementPresentByElement(IWebElement element, By by)
+        {
+            try
+            {
+                element.FindElement(by);
+                return true;
+            }
+            catch (NoSuchElementException)
+            {
+                return false;
+            }
+        }
+
+        private static void BannerCourses(IWebDriver driver)
+        {
+            BackgroundImage(driver.FindElement(By.XPath("//div[@id='cta_floor']")), "909.1");
+            TextString(driver.FindElement(By.XPath("//h3[@id='cta_title']")), "909.2");
+            TextString(driver.FindElement(By.XPath("//div[@id='cta_subtitle']")), "909.3");
+            CatalogCoursesBtn(driver);
+        }
+
+        private static void CatalogCoursesBtn(IWebDriver driver)
+        {
+            try
+            {
+                IWebElement catalog_courses_btn = driver.FindElement(By.Id("cta_btn"));
+                if (catalog_courses_btn.GetAttribute("href") == URL + "course/")
+                {
+                    Console.WriteLine("success! 909.4");
+                    success++;
+                }
+                else
+                {
+                    Console.WriteLine("fail! 909.4");
+                    failed++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! 909.4 " + e.Message);
+            }
+        }
+
+        private static void CountCubesOfCourses(IWebDriver driver, string IdScript)
+        {
+            try
+            {
+                CourseLoadMoreBtn(driver, "912.1");
+                TitleAndCountCourses(driver, "912.2");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! CountCubesOfCourses " + IdScript + " " + e.Message);
+            }
+
+        }
+
+        private static void CourseLoadMoreBtn(IWebDriver driver, string Idscript)
+        {
+            try
+            {
+                while (driver.FindElement(By.Id("course_load_more")).Displayed)
+                {
+                    driver.FindElement(By.Id("course_load_more")).Click();
+                }
+                Console.WriteLine("success! " + Idscript);
+                success++;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! click on load more button 912.1" + e.Message);
+                failed++;
+            }
+        }
+
+        private static void FilterByInstitutionProject(IWebDriver driver, string input_checkbox, string IdScriptFilter, string IdScriptBtn, string IdScriptCount)
+        {
+            try
+            {
+                IWebElement institution = driver.FindElement(By.CssSelector("button[class='filter_main_button dropdown_open']"));
+                institution?.Click();
+
+                IWebElement input = driver.FindElement(By.Id(input_checkbox));
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+                Console.WriteLine("success! " + IdScriptFilter);
+                success++;
+
+                if (driver.FindElement(By.CssSelector("div[class='row wrap-top-bar-search']")).FindElement(By.CssSelector("[class='filter_dynamic_tag']")) != null)
+                {
+                    CourseLoadMoreBtn(driver, IdScriptBtn);
+                    TitleAndCountCourses(driver, IdScriptCount);
+                }
+                else
+                {
+                    Console.WriteLine("fail!  " + IdScriptFilter);
+                    failed++;
+                }
+
+
+                jse.ExecuteScript("arguments[0].click();", input);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! FilterByInstitutionProject " + IdScriptFilter + " " + e.Message);
+                failed++;
+            }
+        }
+
+        private static void FilterProject(IWebDriver driver, IWebElement input, string IdScriptFilter, string IdScriptBtn, string IdScriptCount)
+        {
+
+            try
+            {
+                IJavaScriptExecutor jse = (IJavaScriptExecutor)driver;
+                jse.ExecuteScript("arguments[0].click();", input);
+
+                Console.WriteLine("success! " + IdScriptFilter);
+                success++;
+
+                CourseLoadMoreBtn(driver, IdScriptBtn);
+                TitleAndCountCoursesAndParenthesis(driver, input, IdScriptCount);
+
+                jse.ExecuteScript("arguments[0].click();", input);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! " + IdScriptFilter + " " + e.Message);
+                failed++;
+            }
+        }
+
+        private static void TitleAndCountCoursesAndParenthesis(IWebDriver driver, IWebElement input, string IdScript)
+        {
+            try
+            {
+                int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+                int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+                int sum_of_courses_in_parentheses = Int16.Parse(input.FindElement(By.XPath("following-sibling::*[1]")).FindElement(By.ClassName("sum")).Text.Replace("(", "").Replace(")", ""));
+                if (sum_course_text == sum_course_list && sum_course_text == sum_of_courses_in_parentheses)
+                {
+                    Console.WriteLine("success! " + IdScript);
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! " + IdScript);
+                    failed++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! " + IdScript + " " + e.Message);
+            }
+
+        }
+
+        private static void VideosHowtoLearn(IWebDriver driver)
+        {
+            var videos = driver.FindElements(By.CssSelector("[class='open_yt_lightbox open-popup-button']"));
+
+            CompareCounts(videos.Count, 3, "916.1");
+
+            int index = 0;
+            foreach (var item in videos)
+            {
+                TextString(item.FindElement(By.ClassName("title-video-boxes")), (index + 1) + "/3 916.2");
+                item.Click();
+
+                OpacityPopopVideo(driver.FindElement(By.Id("popup_overlay")), (index + 1) + "/3 916.3");
+                var close_video = driver.FindElements(By.CssSelector("[class='last-popup-element first-popup-element close-popup-button close-popup-iframe']"))[1];
+                close_video.Click();
+
+                index++;
+            }
+        }
+
+        private static void OpacityPopopVideo(IWebElement element, string IdScript)
+        {
+            string opacity = element.GetCssValue("opacity");
+            if (opacity == "1")
+            {
+                Console.WriteLine("success! " + IdScript);
+                success++;
+            }
+
+            else
+            {
+                Console.WriteLine("fail! " + IdScript);
+                failed++;
+            }
+        }
+
+        private static void FloorQuestionsAndAnswers(IWebDriver driver)
+        {
+            TextString(driver.FindElement(By.ClassName("faq-title")), "917.1");
+            var collection = driver.FindElements(By.ClassName("faq-item"));
+            int length_collection = collection.Count;
+            int index = 1;
+            foreach (var item in collection)
+            {
+                item.FindElement(By.ClassName("faq-title-inner")).Click();
+                DisplayBlock(item, index + "/" + length_collection + " 917.2");
+                item.FindElement(By.ClassName("faq-title-inner")).Click();
+                DisplayNone(item, index + "/" + length_collection + " 917.3");
+                index++;
+            }
+
+        }
+
+        private static void DisplayBlock(IWebElement element, string IdScript)
+        {
+            if (element.FindElement(By.ClassName("faq-answer")).Displayed)
+            {
+                Console.WriteLine("success! " + IdScript);
+                success++;
+            }
+            else
+            {
+                Console.WriteLine("fail! " + IdScript);
+                failed++;
+            }
+        }
+
+        private static void DisplayNone(IWebElement element, string IdScript)
+        {
+            if (element.FindElement(By.ClassName("faq-answer")).Displayed)
+            {
+                Console.WriteLine("fail! " + IdScript);
+                failed++;
+            }
+            else
+            {
+                Console.WriteLine("success! " + IdScript);
+                success++;
+            }
+        }
+
         //global functions
 
         private static void Quit(IWebDriver driver)
@@ -2873,6 +3268,95 @@ namespace Campus
             {
                 Console.WriteLine("fail! Change Language He " + e.Message);
                 return false;
+            }
+        }
+
+        private static void ImageSrc(IWebElement element, string IdScript)
+        {
+            try
+            {
+                string img = element.GetAttribute("src");
+                if (img != "")
+                {
+                    Console.WriteLine("success! " + IdScript);
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! " + IdScript);
+                    failed++;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! ImageSrc " + IdScript + " " + e.Message);
+                failed++;
+            }
+
+        }
+
+        private static void TextString(IWebElement element, string IdScript = "")
+        {
+            try
+            {
+                if (element.Text != "")
+                {
+                    Console.WriteLine("success! " + IdScript);
+                    success++;
+                }
+
+                else
+                {
+                    Console.WriteLine("fail! " + IdScript);
+                    failed++;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! TextString " + e.Message);
+                failed++;
+            }
+
+        }
+
+        private static void BackgroundImage(IWebElement element, string IdScript)
+        {
+            try
+            {
+                String url_bgImage = element.GetCssValue("background-image");
+                string bgImage = url_bgImage.Replace("url(", "").Replace(")", "");
+                if (bgImage != "about:invalid")
+                {
+                    Console.WriteLine("success! " + IdScript);
+                }
+                else
+                {
+                    Console.WriteLine("fail! " + IdScript);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! " + IdScript + " " + e.Message);
+            }
+
+        }
+
+        private static void TitleAndCountCourses(IWebDriver driver, string IdScript)
+        {
+            int sum_course_text = Int16.Parse(driver.FindElement(By.Id("add-sum-course")).Text);
+            int sum_course_list = driver.FindElements(By.CssSelector("div[class='item_post_type_course course-item col-xs-12 col-md-6 col-xl-4 course-item-with-border']")).Count;
+            if (sum_course_text == sum_course_list)
+            {
+                Console.WriteLine("success! " + IdScript);
+                success++;
+            }
+
+            else
+            {
+                Console.WriteLine("fail! " + IdScript);
+                failed++;
             }
         }
 
