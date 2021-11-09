@@ -127,76 +127,43 @@ namespace Campus
         {
             try
             {
-                for (int i = 0; i < 2; i++)
+                IWebElement page = driver.FindElement(By.Id("academic-institution-slider")).FindElement(By.CssSelector("div[aria-hidden='false']")).FindElement(By.TagName("a"));
+                string title_page = page.FindElement(By.TagName("img")).GetAttribute("alt");
+                page?.Click();
+                Thread.Sleep(6000);
+
+                if (driver.Title.Contains(title_page))
                 {
-                    Thread.Sleep(1000);
-
-                    IWebElement page = driver.FindElement(By.Id("academic-institution-slider")).FindElements(By.CssSelector("div[aria-hidden='false']"))[i].FindElement(By.TagName("a"));
-                    string title_page = page.FindElement(By.TagName("img")).GetAttribute("alt");
-                    page?.Click();
-                    Thread.Sleep(6000);
-
-                    if (driver.Title.Contains(title_page))
+                    Console.WriteLine("success! 201");
+                    success++;
+                    IsAmountOfCoursesEqual(driver);
+                    IsAmountOfLecturersEqual(driver);
+                    if (ChangeLanguageEn(driver, "206"))
                     {
-                        Console.WriteLine("success! in Academic Institutions: " + title_page + " page");
-                        success++;
-
-                        var languages = driver.FindElement(By.CssSelector("div[class='lang d-none d-lg-inline-block languages_menu_wrap']")).FindElements(By.TagName("a"));
-                        List<string> links = new List<string>(); List<string> titles = new List<string>();
-                        foreach (var item in languages)
-                        {
-                            links.Add(item.GetAttribute("href"));
-                            titles.Add(item.GetAttribute("title"));
-                        }
-
-                        for (int index_link = links.Count - 1; index_link >= 0; index_link--)
-                        {
-                            driver.Url = links[index_link].ToString();
-                            Thread.Sleep(100);
-                            string lang = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
-
-                            switch (titles[index_link].ToString())
-                            {
-                                case "עב":
-                                    {
-                                        if (lang == "he-IL")
-                                            PageInstitution(driver, lang, "Hebrew");
-                                    }
-                                    break;
-                                case "العر":
-                                    {
-                                        if (lang == "ar")
-                                            PageInstitution(driver, lang, "Arabic");
-                                    }
-                                    break;
-                                case "En":
-                                    {
-                                        if (lang == "en-US")
-                                            PageInstitution(driver, lang, "English");
-                                    }
-                                    break;
-                                default:
-                                    Console.WriteLine("fail! can not change " + titles[index_link].ToString() + " language");
-                                    break;
-                            }
-                        }
+                        //יבודק אם הקורסים הולכים לאתרים שלהם בשפה הנבחרת
+                        GoToCourseInInstatution(driver, "en-US", "207");
                     }
-
-                    else
+                    if (ChangeLanguageAr(driver, "208"))
                     {
-                        Console.WriteLine("fail! Institution page: " + title_page + " was not found.");
-                        failed++;
+                        //יבודק אם הקורסים הולכים לאתרים שלהם בשפה הנבחרת
+                        GoToCourseInInstatution(driver, "ar", "209");
                     }
-
-                    IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
-                    go_back?.Click();
-                    Thread.Sleep(500);
                 }
+
+                else
+                {
+                    Console.WriteLine("fail! 201");
+                    failed++;
+                }
+
+                IWebElement go_back = driver.FindElement(By.ClassName("above-banner")).FindElement(By.ClassName("campus_logo"));
+                go_back?.Click();
+                Thread.Sleep(500);
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! PagesAcademicInstitution  " + e.Message);
+                Console.WriteLine("fail! PagesAcademicInstitution 201 " + e.Message);
                 failed++;
             }
 
@@ -358,14 +325,16 @@ namespace Campus
             Thread.Sleep(300);
             HeaderLoginButton(driver);
             HeaderRegistrationButton(driver);
-            LoginButton(driver);
+            CoursePageRegistrationToCampusIL(driver);
+            BlendPageRegistrationToCampusIL(driver);
+            LoginButton(driver, "1119");
             HeaderRegistrationUserName(driver);
             PrivateArea(driver);
             CoursePageRegistration(driver);
             BlendPageRegistration(driver);
             LogOut(driver);
             Thread.Sleep(3000);
-            LoginButton(driver);
+            LoginButton(driver, "1126");
             HeaderRegistrationUserName(driver);
             ToCoursePage(driver);
             ToBlendCoursePage(driver);
@@ -704,17 +673,7 @@ namespace Campus
             }
         }
 
-        private static void PageInstitution(IWebDriver driver, string lang, string language_page)
-        {
-            Console.WriteLine("success! change language to " + language_page);
-            success++;
-            IsAmountOfCoursesEqual(driver);
-            IsAmountOfLecturersEqual(driver);
-            //יבודק אם הקורסים הולכים לאתרים שלהם בשפה הנבחרת
-            GoToCourseInInstatution(driver, lang);
-        }
-
-        private static void GoToCourseInInstatution(IWebDriver driver, string lang_language)
+        private static void GoToCourseInInstatution(IWebDriver driver, string lang_language, string IdScript)
         {
             try
             {
@@ -723,26 +682,25 @@ namespace Campus
                     IWebElement course_link = driver.FindElements(By.ClassName("course-item-details"))[i];
                     string course_title = course_link.FindElement(By.ClassName("course-item-title")).Text;
                     course_link?.Click();
+                    Thread.Sleep(100);
 
                     string current_language = driver.FindElement(By.TagName("HTML")).GetAttribute("lang");
                     if (current_language == lang_language && driver.Title.Contains(course_title))
                     {
-                        Console.WriteLine("success! go to course");
+                        Console.WriteLine("success! go to course " + IdScript);
                         success++;
                         driver.Navigate().Back();
                     }
                     else
                     {
-                        Console.WriteLine("fail! go to course");
+                        Console.WriteLine("fail! go to course " + IdScript);
                         failed++;
                     }
-
-
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! GoToCourseInInstatution " + e.Message);
+                Console.WriteLine("fail! GoToCourseInInstatution " + IdScript + " " + e.Message);
                 failed++;
             }
 
@@ -1319,30 +1277,17 @@ namespace Campus
             try
             {
                 IWebElement a = driver.FindElements(By.ClassName("login-item"))[1];
-                if (a.Text == "התחברות")
-                {
-                    Console.WriteLine("success! button login text is login");
-                    success++;
-                }
-
-                else
-                {
-                    Console.WriteLine("fail! button login text is not login");
-                    failed++;
-                }
-
+                CompareTexts(a.Text, "התחברות", "1113.1");
 
                 a?.Click();
                 if (driver.Title.Contains("היכנס או צור חשבון") && driver.Url.Contains("login"))
                 {
-                    Console.WriteLine("success! button login send user to login page");
+                    Console.WriteLine("success! 1113.2");
                     success++;
                 }
-
-
                 else
                 {
-                    Console.WriteLine("login button doesn't send to login page");
+                    Console.WriteLine("fail! 1113.2");
                     failed++;
                 }
 
@@ -1350,10 +1295,40 @@ namespace Campus
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! HeaderLoginButton " + e.Message);
+                Console.WriteLine("fail! HeaderLoginButton 1113" + e.Message);
                 failed++;
             }
 
+        }
+
+        private static void CoursePageRegistrationToCampusIL(IWebDriver driver)
+        {
+            try
+            {
+                driver.Url = URL + "course/course-v1-molsa-gov-eng101/";
+                IWebElement green_button = driver.FindElement(By.CssSelector("[class='signup-course-button con_to_course ']"));
+                CompareTexts(green_button.Text, "הרשמה לcampusIL", "1116");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! CoursePageRegistrationToCampusIL 1116 " + e.Message);
+                failed++;
+            }
+        }
+
+        private static void BlendPageRegistrationToCampusIL(IWebDriver driver)
+        {
+            try
+            {
+                driver.Url = URL + "h_course/tester/";
+                IWebElement green_button = driver.FindElement(By.CssSelector("[class='signup-course-button con_to_course ']"));
+                CompareTexts(green_button.Text, "הרשמה לcampusIL", "1117");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("fail! BlendPageRegistrationToCampusIL 1117 " + e.Message);
+                failed++;
+            }
         }
 
         private static void HeaderRegistrationButton(IWebDriver driver)
@@ -1361,31 +1336,21 @@ namespace Campus
             try
             {
                 IWebElement a = driver.FindElements(By.ClassName("signin"))[1];
-                if (a.Text == "הרשמה")
-                {
-                    Console.WriteLine("success! button registration text is registration");
-                    success++;
-                }
-
-                else
-                {
-                    Console.WriteLine("fail! button registration text is not registration");
-                    failed++;
-                }
+                CompareTexts(a.Text, "הרשמה", "114.1");
 
                 a.Click();
 
                 //check is it correct page opened or not 
                 if (driver.Title.Contains("היכנס או צור חשבון") && driver.Url.Contains("register"))
                 {
-                    Console.WriteLine("success! button registration send user to registration page");
+                    Console.WriteLine("success! 114.2");
                     success++;
                 }
 
 
                 else
                 {
-                    Console.WriteLine("fail! registration button doesn't send to registration page");
+                    Console.WriteLine("fail! 114.2");
                     failed++;
                 }
 
@@ -1399,7 +1364,7 @@ namespace Campus
 
         }
 
-        private static void LoginButton(IWebDriver driver)
+        private static void LoginButton(IWebDriver driver, string IdScript)
         {
             try
             {
@@ -1407,7 +1372,7 @@ namespace Campus
                 a?.Click();
                 if (driver.Title.Contains("היכנס או צור חשבון") && driver.Url.Contains("login"))
                 {
-                    Console.WriteLine("success! button login send user to login page for Sign up");
+                    Console.WriteLine("success! " + IdScript);
                     IWebElement input_user_mail = driver.FindElement(By.Id("login-email"));
                     input_user_mail.SendKeys("ravitc@daatsolutions.co.il");
 
@@ -1426,14 +1391,14 @@ namespace Campus
 
                 else
                 {
-                    Console.WriteLine("login button doesn't send to login page");
+                    Console.WriteLine("fail! LoginButton " + IdScript);
                     failed++;
                 }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! LoginButton" + e.Message);
+                Console.WriteLine("fail! LoginButton " + IdScript + " " + e.Message);
                 failed++;
             }
 
@@ -1447,20 +1412,20 @@ namespace Campus
                 string user_name = driver.FindElements(By.CssSelector("[class='user-information show_for_connected_user']"))[1].Text;
                 if (user_name.Contains("שלום"))
                 {
-                    Console.WriteLine("success! have user name after registration");
+                    Console.WriteLine("success! 1120");
                     success++;
                 }
 
                 else
                 {
-                    Console.WriteLine("fail! doesn't have user name after registration");
+                    Console.WriteLine("fail! 1120");
                     failed++;
                 }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! HeaderRegistrationUserName " + e.Message);
+                Console.WriteLine("fail! HeaderRegistrationUserName 1120 " + e.Message);
                 failed++;
             }
 
@@ -1479,14 +1444,14 @@ namespace Campus
                 //check is it correct page opened or not 
                 if (driver.Title.Contains("אזור אישי") && driver.Url.Contains("dashboard") || driver.Title.Contains("לוח בקרה") && driver.Url.Contains("dashboard"))
                 {
-                    Console.WriteLine("success! button private area send user to dashboard page");
+                    Console.WriteLine("success! 1121");
                     success++;
                 }
 
 
                 else
                 {
-                    Console.WriteLine("fail! button private area doesn't send to dashboard page");
+                    Console.WriteLine("fail! 1121");
                     failed++;
                 }
 
@@ -1497,7 +1462,7 @@ namespace Campus
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! PrivateArea " + e.Message);
+                Console.WriteLine("fail! PrivateArea 1121 " + e.Message);
                 failed++;
             }
 
@@ -1513,7 +1478,7 @@ namespace Campus
                 Console.WriteLine(green_button.Text);
                 if (green_button.Text == "הרשמה לקורס")
                 {
-                    Console.WriteLine("success! green button text in course page is Sign up for a course");
+                    Console.WriteLine("success! 1122");
                     //שמתי בהערה כי הקליק עובד ואז בפעם הבא שאני אריץ את הקורס הזה לא יהיה כתוב לי 
                     //להרשמה לקורס אלא לעמוד הקורס
                     //לכן שמתי לינק פה - לבדיקה להרשמה לקורס
@@ -1525,14 +1490,14 @@ namespace Campus
 
                 else
                 {
-                    Console.WriteLine("fail! green button text in course page is not Sign up for a course");
+                    Console.WriteLine("fail! 1122");
                     failed++;
                 }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! CoursePageRegistration " + e.Message);
+                Console.WriteLine("fail! CoursePageRegistration 1122 " + e.Message);
                 failed++;
             }
 
@@ -1545,24 +1510,23 @@ namespace Campus
             {
                 driver.Url = URL + "h_course/tester/";
                 IWebElement green_button = driver.FindElement(By.Id("hybrid_banner_btn"));
-                Console.WriteLine(green_button.Text);
                 //בודק אם הטקסט בכפתור לא ריק
                 if (green_button.Text != "")
                 {
-                    Console.WriteLine("success! green button text in blend page is Sign up for a course");
+                    Console.WriteLine("success! 1123");
                     success++;
                 }
 
                 else
                 {
-                    Console.WriteLine("fail! green button text in blend page is not Sign up for a course");
+                    Console.WriteLine("fail! 1123");
                     failed++;
                 }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! BlendPageRegistration" + e.Message);
+                Console.WriteLine("fail! BlendPageRegistration 1123 " + e.Message);
                 failed++;
             }
 
@@ -1587,19 +1551,19 @@ namespace Campus
                     li_logout?.Click();
                     IWebElement a_logout = driver.FindElement(By.CssSelector("a[href='/logout']"));
                     a_logout?.Click();
-                    Console.WriteLine("success! Log out");
+                    Console.WriteLine("success! 1124");
                     success++;
                 }
                 else
                 {
-                    Console.WriteLine("fail! Log out");
+                    Console.WriteLine("fail! 1124");
                     failed++;
                 }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! LogOut " + e.Message);
+                Console.WriteLine("fail! LogOut 1124 " + e.Message);
                 failed++;
             }
 
@@ -1614,20 +1578,20 @@ namespace Campus
                 Console.WriteLine(green_button.Text);
                 if (green_button.Displayed && green_button.Text == "לעמוד הקורס")
                 {
-                    Console.WriteLine("success! green button text in course page is to course page");
+                    Console.WriteLine("success! 1128");
                     success++;
                 }
 
                 else
                 {
-                    Console.WriteLine("fail! green button text in course page is to course page. The current course may have been deleted from my personal area");
+                    Console.WriteLine("fail! 1128");
                     failed++;
                 }
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! ToCoursePage " + e.Message);
+                Console.WriteLine("fail! ToCoursePage 1128 " + e.Message);
                 failed++;
             }
 
@@ -1640,22 +1604,11 @@ namespace Campus
                 driver.Url = URL + "h_course/%d7%9c%d7%91%d7%93%d7%99%d7%a7%d7%94-%d7%91%d7%9c%d7%91%d7%93-2-%d7%90%d7%99%d7%9f-%d7%9c%d7%91%d7%a6%d7%a2-%d7%a9%d7%99%d7%9e%d7%95%d7%a9/";
                 IWebElement green_button = driver.FindElement(By.CssSelector("[class='signup-course-button con_to_course ']"));
 
-                if (green_button.Text == "משתמש מחובר")
-                {
-                    Console.WriteLine("success! green button text in course page is to blend course page");
-                    success++;
-                }
-
-                else
-                {
-                    Console.WriteLine("fail! green button text in course page is to blend course page");
-                    failed++;
-                }
-
+                CompareTexts(green_button.Text, "משתמש מחובר", "1128");
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! ToBlendCoursePage " + e.Message);
+                Console.WriteLine("fail! ToBlendCoursePage 1128 " + e.Message);
                 failed++;
             }
 
@@ -3144,20 +3097,11 @@ namespace Campus
             {
                 int sum = Int16.Parse(driver.FindElement(By.ClassName("found-course-number")).Text);
                 int sum_list_course = driver.FindElements(By.ClassName("item_post_type_course")).Count;
-                if (sum == sum_list_course)
-                {
-                    Console.WriteLine("success! courses equal");
-                    success++;
-                }
-                else
-                {
-                    Console.WriteLine("fail! courses not equal");
-                    failed++;
-                }
+                CompareCounts(sum_list_course, sum, "202");
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! IsAmountOfCoursesEqual " + e.Message);
+                Console.WriteLine("fail! IsAmountOfCoursesEqual 202 " + e.Message);
                 failed++;
             }
 
@@ -3169,20 +3113,11 @@ namespace Campus
             {
                 int sum = Int16.Parse(driver.FindElement(By.ClassName("found-lecturer-number")).Text);
                 int sum_list_lecturers = driver.FindElements(By.ClassName("single-lecturer")).Count;
-                if (sum == sum_list_lecturers)
-                {
-                    Console.WriteLine("success! lecturers equal");
-                    success++;
-                }
-                else
-                {
-                    Console.WriteLine("fail! lecturers not equal");
-                    failed++;
-                }
+                CompareCounts(sum_list_lecturers, sum, "205");
             }
             catch (Exception e)
             {
-                Console.WriteLine("fail! IsAmountOfLecturersEqual " + e.Message);
+                Console.WriteLine("fail! IsAmountOfLecturersEqual 205 " + e.Message);
                 failed++;
             }
 
@@ -3360,5 +3295,19 @@ namespace Campus
             }
         }
 
+        private static void CompareTexts(string first_text, string second_text, string IdScript)
+        {
+            if (first_text == second_text)
+            {
+                Console.WriteLine("success! " + IdScript);
+                success++;
+            }
+
+            else
+            {
+                Console.WriteLine("fail! " + IdScript);
+                failed++;
+            }
+        }
     }
 }
